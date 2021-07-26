@@ -120,14 +120,14 @@ export default {
           key: "bondedOwner",
           color: "#fff",
           headColor: "#fff",
-          unit: "CUR"
+          unit: "CRU"
         },
         {
           title: "全网冻结",
           key: "allFrozen",
           color: "#fff",
           headColor: "#fff",
-          unit: "CUR"
+          unit: "CRU"
         },
         {
           title: "提名人",
