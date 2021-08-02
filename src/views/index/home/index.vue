@@ -1,6 +1,12 @@
 <template>
-  <div class="home-wrap">
-    <Title></Title>
+  <div
+    class="home-wrap"
+    :style="{
+      'background-position':
+        $store.state.bodyDirection == 1 ? 'center -10rem' : 'center -5rem',
+    }"
+  >
+    <Title v-if="$store.state.bodyDirection == 0"></Title>
     <Data :dataDetail="dataDetail"></Data>
     <Box :blockList="blockList"></Box>
     <PledgeRankList></PledgeRankList>
@@ -27,7 +33,7 @@ export default {
       websock: null,
       blockList: [], // 最新区块列表
       dataDetail: {}, // 数据概览
-      timer: null, // 数据概览计时器
+      timer: null // 数据概览计时器
     };
   },
   created() {
@@ -37,7 +43,7 @@ export default {
   },
   methods: {
     getData() {
-      homeDataApi().then((res) => {
+      homeDataApi().then(res => {
         if (res.code == 200) {
           if (res.data) {
             this.fillData(res.data);
@@ -56,7 +62,7 @@ export default {
       var t = new Date().getTime();
       var s = "timestamp=" + t;
       var md5 = jsMd5(s);
-      getHomeSidApi(t, md5).then((res) => {
+      getHomeSidApi(t, md5).then(res => {
         if (res && res.code == 200) {
           this.initWebSocket(res.data);
         }
@@ -102,30 +108,29 @@ export default {
         this.websock.close();
         console.log("websocket关闭");
       }
-    },
+    }
   },
   destroyed() {
     this.closeWebSocket();
-  },
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .home-wrap {
+  width: 100%;
   height: auto;
   background: url("../../../assets/imgs/bg.png") no-repeat;
-  background-position: center -60px;
   background-size: 100% auto;
   color: #fff;
   background-color: #100b1c;
   .footer {
-    height: 40px;
-    margin-top: 20px;
+    height: 3rem;
     background-color: #06040a;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 0.9rem;
     color: #ffffff;
   }
 }

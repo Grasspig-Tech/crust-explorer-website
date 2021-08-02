@@ -1,124 +1,208 @@
 <template>
-  <div class="header-wrap">
-    <div class="logo" @click="goHome()">
-      <img
-        :src="require('@/assets/imgs/logo.png')"
-        alt="logo"
-        mode="widthFix"
-      />
-    </div>
-    <div class="menu">
-      <div
-        class="menu-item click"
-        v-for="(item, index) in menuList"
-        :key="index"
-        :class="menuActive == index ? 'menu-active' : ''"
-        @click="changeMenu(item, index, item.subMenu)"
-      >
-        <span>{{ item.text }}</span>
+  <div class="header-wrap" :style="{ height: $store.state.bodyDirection == 1 ? '10rem' : '5rem' }">
+    <div class="header-main main-box">
+      <div class="logo" @click="goHome()">
+        <img :src="require('@/assets/imgs/logo.png')" alt="logo" mode="widthFix" />
+      </div>
+      <div class="menu" v-if="$store.state.bodyDirection == 0">
         <div
-          class="dropdown-wrap"
-          v-if="item.subMenu"
-          :style="{ '--height': item.subMenu.length * 50 + 'px' }"
+          class="menu-item click"
+          v-for="(item, index) in menuList"
+          :key="index"
+          :class="menuActive == index ? 'menu-active' : ''"
+          @click="changeMenu(item, index, item.subMenu)"
         >
+          <span>{{ item.text }}</span>
           <div
-            class="dropdown-item"
-            v-for="(sub, i) in item.subMenu"
-            :key="i"
-            :class="item.subActive == i ? 'sub-active' : ''"
-            @click.stop="changeSubMenu(index, sub, i)"
+            class="dropdown-wrap"
+            v-if="item.subMenu"
+            :style="{ '--height': item.subMenu.length * 4 + 'rem' }"
           >
-            {{ sub.text }}
+            <div
+              class="dropdown-item"
+              v-for="(sub, i) in item.subMenu"
+              :key="i"
+              :class="item.subActive == i ? 'sub-active' : ''"
+              @click.stop="changeSubMenu(index, sub, i)"
+            >{{ sub.text }}</div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="right-wrap">
-      <div class="search-wrap">
-        <input
-          class="input"
-          type="text"
-          v-model="keyword"
-          placeholder="搜索区块 / 交易 / 账户"
-          @keyup.enter="search"
-        />
-        <img
-          :src="require('@/assets/imgs/sousuo.png')"
-          alt="搜索"
-          @click="search"
-        />
+      <div class="right-wrap" v-if="$store.state.bodyDirection == 1">
+        <div class="img-wrap">
+          <img :src="require('@/assets/imgs/icon_home.png')" @click="drawer = true" />
+        </div>
       </div>
-      <!-- <div class="lang-wrap">中文/EN</div> -->
+      <div class="right-wrap" v-if="$store.state.bodyDirection == 0">
+        <div class="search-wrap">
+          <input
+            class="input"
+            type="text"
+            v-model="keyword"
+            :placeholder="$t('home.searchText')"
+            @keyup.enter="search"
+          />
+          <img :src="require('@/assets/imgs/sousuo.png')" @click="search" />
+        </div>
+        <!-- 语言 -->
+        <language></language>
+      </div>
     </div>
+
+    <div class="search-box main-box" v-if="$store.state.bodyDirection == 1">
+      <div class="search-wrap">
+        <div class="input-wrap">
+          <input
+            class="input"
+            type="text"
+            v-model="keyword"
+            :placeholder="$t('home.searchText')"
+            @keyup.enter="search"
+          />
+        </div>
+        <img :src="require('@/assets/imgs/icon_sousuo.png')" @click="search" />
+      </div>
+    </div>
+
+    <el-drawer class="drawer" :visible.sync="drawer" size="80%" :withHeader="false">
+      <div class="drawer-inner">
+        <div class="header">
+          <language></language>
+          <img :src="require('@/assets/imgs/close.png')" @click="drawer = false" />
+        </div>
+        <div class="menu-list">
+          <div class="row-wrap" v-for="(row, index) in menuList" :key="index">
+            <div
+              class="row"
+              @click="changeMenu(row, index, row.subMenu)"
+              :class="menuActive == index ? 'open' : ''"
+            >
+              <span class="title">{{ row.text }}</span>
+              <img class="arrow" v-if="row.subMenu" src="@/assets/imgs/icon_more.png" />
+            </div>
+            <div
+              class="sub-menu"
+              :style="{
+                height:
+                  menuActive == index && row.subMenu
+                    ? 'auto'
+                    : 0,
+              }"
+            >
+              <div
+                class="sub-row"
+                v-for="(sub, i) in row.subMenu"
+                :key="i"
+                @click.stop="changeSubMenu(index, sub, i)"
+              >
+                <span class="sub-title">{{ sub.text }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { searchApi } from "@/api/home.js";
+import language from "@/components/language.vue";
 export default {
+  components: { language },
   data() {
     return {
+      drawer: false,
       menuList: [
         {
-          text: "首页",
-          path: "/home",
+          text: this.$t("home.home"),
+          path: "/home"
         },
         {
-          text: "区块链",
+          text: this.$t("home.blockchain"),
           subActive: -1,
           subMenu: [
             {
-              text: "区块",
-              path: "/blockList",
+              text: this.$t("home.block"),
+              path: "/blockList"
             },
             {
-              text: "交易",
-              path: "/transaction",
+              text: this.$t("home.extrinsics"),
+              path: "/transaction"
             },
             {
-              text: "转账",
-              path: "/transferList",
-            },
-          ],
+              text: this.$t("home.transfers"),
+              path: "/transferList"
+            }
+          ]
         },
         {
-          text: "统计",
+          text: this.$t("home.statistics"),
           subActive: -1,
           subMenu: [
             {
-              text: "有效质押",
-              path: "/effectivePledge",
+              text: this.$t("home.effectIvestake"),
+              path: "/effectivePledge"
             },
             {
-              text: "有效算力",
-              path: "/effectivePledgePower",
-            },
+              text: this.$t("home.effectiveComputingPower"),
+              path: "/effectivePledgePower"
+            }
             // {
             //   text: "手续费",
             //   path: "/serviceCharge",
             // },
-          ],
+          ]
         },
         {
-          text: "资源",
+          text: this.$t("home.resources"),
           subActive: -1,
           subMenu: [
             {
-              text: "白皮书",
+              text: this.$t("home.whitePaper"),
               otherPath:
-                "https://crust-data.oss-cn-shanghai.aliyuncs.com/crust-home/whitepapers/whitepaper.pdf",
+                "https://crust-data.oss-cn-shanghai.aliyuncs.com/crust-home/whitepapers/whitepaper.pdf"
             },
             {
-              text: "FAQ",
-              otherPath: "https://crust.network/faq",
-            },
-          ],
-        },
+              text: this.$t("home.faq"),
+              otherPath: "https://crust.network/faq"
+            }
+          ]
+        }
       ],
       menuActive: 0,
       subActive: 0,
-      keyword: "",
+      keyword: ""
     };
+  },
+  watch: {
+    menuActive(val) {
+      this.$session.set("menuActive", val);
+    },
+    subActive(val) {
+      this.$session.set("subActive", val);
+    },
+    drawer(val) {
+      this.$emit("openMenu", !val);
+    },
+    "$i18n.locale": {
+      handler: function() {
+        this.menuList[0].text = this.$t("home.home");
+        this.menuList[1].text = this.$t("home.blockchain");
+        this.menuList[1].subMenu[0].text = this.$t("home.block");
+        this.menuList[1].subMenu[1].text = this.$t("home.extrinsics");
+        this.menuList[1].subMenu[2].text = this.$t("home.transfers");
+        this.menuList[2].text = this.$t("home.statistics");
+        this.menuList[2].subMenu[0].text = this.$t("home.effectIvestake");
+        this.menuList[2].subMenu[1].text = this.$t(
+          "home.effectiveComputingPower"
+        );
+        this.menuList[3].text = this.$t("home.resources");
+        this.menuList[3].subMenu[0].text = this.$t("home.whitePaper");
+        this.menuList[3].subMenu[1].text = this.$t("home.faq");
+      },
+      deep: true
+    }
   },
   mounted() {
     var menuActive = this.$session.get("menuActive"),
@@ -134,44 +218,36 @@ export default {
       this.menuList[index].subActive = i;
     });
   },
-  watch: {
-    menuActive(val) {
-      this.$session.set("menuActive", val);
-    },
-    subActive(val) {
-      this.$session.set("subActive", val);
-    },
-  },
   methods: {
     goHome() {
       if (this.$router.currentRoute.path != "/home") this.$router.push("/home");
       this.menuActive = 0;
       this.subActive = 0;
-      this.menuList.map((one) => {
+      this.menuList.map(one => {
         one.subActive = -1;
       });
     },
     search() {
-      searchApi(this.keyword).then((res) => {
+      searchApi(this.keyword).then(res => {
         if (res.code == 200) {
           switch (Number(res.data.type)) {
             case 1:
               //  区块
-              console.log("搜索区块", this.keyword);
+              // console.log("搜索区块", this.keyword);
               this.$router.push(
                 `/blockDetail?blockNum=${res.data.blockVO.blockNum}`
               );
               break;
             case 2:
               //  交易
-              console.log("搜索交易", this.keyword);
+              // console.log("搜索交易", this.keyword);
               this.$router.push(
                 `/transactionDetail?blockNum=${res.data.extrinsicVO.blockNum}&extrinsicHash=${res.data.extrinsicVO.extrinsicHash}&extrinsicIndex=${res.data.extrinsicVO.extrinsicIndex}`
               );
               break;
             case 3:
               //  账户
-              console.log("搜索账户", this.keyword);
+              // console.log("搜索账户", this.keyword);
               this.$router.push(
                 `/accountDetail?accountAddress=${res.data.accountVO.address}`
               );
@@ -183,26 +259,9 @@ export default {
       });
     },
     changeMenu(item, index, subMenu) {
-      // this.menuList.map((one) => {
-      //   one.subActive = -1;
-      // });
-      // if (subMenu) {
-      //   var obj = { ...item };
-      //   obj.subActive = 0;
-      //   this.$set(this.menuList, index, obj);
-      //   var path = this.menuList[index].subMenu[0].path;
-      //   var otherPath = this.menuList[index].subMenu[0].otherPath;
-      //   if (path && this.$router.currentRoute.fullPath != path)
-      //     this.$router.push(path);
-      //   if (otherPath) window.open(otherPath);
-      // } else {
-      //   if (item.path && this.$router.currentRoute.fullPath != item.path)
-      //     this.$router.push(item.path);
-      //   if (item.otherPath) window.open(item.otherPath);
-      // }
       if (item.path) {
         // 取消所有二级激活菜单
-        this.menuList.map((one) => {
+        this.menuList.map(one => {
           one.subActive = -1;
         });
         // 设置二级激活菜单
@@ -214,12 +273,15 @@ export default {
           this.$router.push(item.path);
         this.menuActive = index;
         this.subActive = 0;
+        this.drawer = false;
+      } else {
+        if (this.$store.state.bodyDirection == 1) this.menuActive = index;
       }
     },
     changeSubMenu(index, sub, i) {
       if (this.$router.currentRoute.fullPath != sub.path) {
         // 取消所有二级激活菜单取消
-        this.menuList.map((one) => {
+        this.menuList.map(one => {
           one.subActive = -1;
         });
         // path存在
@@ -234,133 +296,262 @@ export default {
         }
         // 跳转其他地址
         if (sub.otherPath) window.open(sub.otherPath);
+        this.drawer = false;
       }
-    },
+    }
   },
   beforeDestroy() {
     this.$root.eventHub.$off("changeActive");
-  },
+  }
 };
 </script>
 
 <style lang="scss" scoped>
+.search-box {
+  margin-top: 0.5rem;
+  width: 100%;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0.5rem;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(111, 111, 111, 0.5);
+    .input-wrap {
+      background-color: #fff;
+      border-radius: 0.5rem 0 0 0.5rem;
+      overflow: hidden;
+      height: 100%;
+      flex: 1;
+      padding: 0 1rem;
+      .input {
+        width: 100%;
+        padding-right: 0.6rem;
+        border: none;
+        height: 100%;
+        outline: none;
+      }
+    }
+    img {
+      width: 1.8rem;
+      margin: 0 1.3rem;
+    }
+  }
+}
+.drawer {
+  z-index: 999999;
+  height: 100vh;
+  .drawer-inner {
+    background-color: #302b3c;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    .header {
+      background-color: #3a3545;
+      display: flex;
+      height: 5rem;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.8rem;
+      img {
+        width: 1.8rem;
+      }
+    }
+    .menu-list {
+      flex: 1;
+      .row-wrap {
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 0 2rem;
+        .row.open {
+          .arrow {
+            transform: rotateZ(180deg);
+          }
+        }
+        .row {
+          height: auto;
+          padding: 1rem 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          .title {
+            font-size: 1.8rem;
+          }
+          .arrow {
+            transition: 0.2s;
+            width: 1.6rem;
+          }
+        }
+        .sub-menu {
+          width: 100%;
+          height: 0;
+          padding-left: 1.5rem;
+          overflow: hidden;
+          transition: height 0.3s;
+          .sub-row {
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 0.1rem solid #fff;
+            .sub-title {
+              font-size: 1.5rem;
+              text-align: left;
+            }
+          }
+        }
+      }
+    }
+  }
+}
 .header-wrap {
   color: #fff;
   background: url("../assets/imgs/bg.png") no-repeat;
   background-position: top center;
   background-size: cover;
-  height: 80px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 72px;
-  .logo {
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-    img {
-      width: 205px;
-    }
-  }
-  .menu {
-    flex: 3;
-    height: 100%;
+  justify-content: center;
+  .header-main {
+    height: 4rem;
     display: flex;
     align-items: center;
-    .menu-item.menu-active {
-      color: #fbd100;
-      &::after {
-        position: absolute;
-        bottom: 14px;
-        right: 0;
-        left: 0;
-        margin: auto;
-        content: "";
-        background-color: #fbd100;
-        width: 41px;
-        height: 6px;
-        border-radius: 90px;
-      }
-    }
-    .menu-item:hover {
-      background-color: rgba(0, 0, 0, 0) !important;
-      .dropdown-wrap {
-        height: var(--height);
-        transition: all 0.4s ease 0s;
-      }
-    }
-    .menu-item {
+    justify-content: space-between;
+    .logo {
       height: 100%;
-      padding: 0 40px;
-      position: relative;
+      flex: 1;
       display: flex;
       align-items: center;
-      font-size: 18px;
-      color: #fff;
-      .dropdown-wrap {
-        box-shadow: 0 0 30px 4px rgba(0, 0, 0, 0.1);
-        border: none !important;
-        height: 0;
-        position: absolute;
-        background-color: #fff;
-        width: auto;
-        z-index: 999;
-        top: 80px;
-        left: 15px;
-        right: 15px;
-        margin: 0 auto;
-        border-radius: 10px;
-        transition: all 0.4s ease 0s;
-        overflow: hidden;
-        color: #111;
-        &::before {
-          width: 0;
-          height: 0;
-          border-left: 10px solid transparent;
-          border-right: 10px solid transparent;
-          border-bottom: 20px solid #fff;
-        }
-        .dropdown-item.sub-active {
-          color: #fbd100;
-        }
-        .dropdown-item {
-          width: 100%;
-          font-size: 16px;
-          height: 50px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-    }
-  }
-  .right-wrap {
-    flex: 2;
-    display: flex;
-    align-items: center;
-    .search-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #fff;
-      border-radius: 6px;
-      padding: 0 14px;
-      width: 240px;
-      height: 40px;
-      margin-right: 20px;
-      .input {
-        width: 100%;
-        padding-right: 10px;
-        border: none;
-        height: 100%;
-        outline: none;
-      }
+      justify-content: flex-start;
       img {
-        width: 20px;
+        width: 14rem;
       }
     }
-    .lang-wrap {
-      font-size: 14px;
+    .menu {
+      flex: 3;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      .menu-item.menu-active {
+        color: #fbd100;
+        &::after {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          left: 0;
+          margin: auto;
+          content: "";
+          background-color: #fbd100;
+          width: 3rem;
+          height: 0.3rem;
+          border-radius: 10rem;
+        }
+      }
+      .menu-item:hover {
+        background-color: rgba(0, 0, 0, 0) !important;
+        .dropdown-wrap {
+          height: var(--height);
+          transition: all 0.4s ease 0s;
+        }
+      }
+      .menu-item {
+        height: 100%;
+        padding: 0 1.8rem;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-size: 1.4rem;
+        .dropdown-wrap {
+          box-shadow: 0 0 2.5rem 0.5rem rgba(0, 0, 0, 0.1);
+          border: none !important;
+          height: 0;
+          position: absolute;
+          background-color: #fff;
+          width: auto;
+          z-index: 999999;
+          top: 110%;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+          border-radius: 0.4rem;
+          transition: all 0.4s ease 0s;
+          overflow: hidden;
+          color: #111;
+          &::before {
+            width: 0;
+            height: 0;
+            border-left: 0.8rem solid transparent;
+            border-right: 0.8rem solid transparent;
+            border-bottom: 1.6rem solid #fff;
+          }
+          .dropdown-item.sub-active {
+            color: #fbd100;
+          }
+          .dropdown-item {
+            width: 100%;
+            font-size: 1.2rem;
+            height: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+    }
+    .right-wrap {
+      flex: 2;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      .img-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        img {
+          width: 2.2rem;
+          height: 1.8rem;
+          margin-left: 1rem;
+        }
+      }
+      .search-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 0 1rem;
+        width: 15rem;
+        height: 2.5rem;
+        margin-right: 1.5rem;
+        .input {
+          width: 100%;
+          padding-right: 0.6rem;
+          border: none;
+          height: 100%;
+          outline: none;
+        }
+        img {
+          width: 1.2rem;
+        }
+      }
+      .lang-wrap {
+        font-size: 0.5rem;
+      }
     }
   }
 }

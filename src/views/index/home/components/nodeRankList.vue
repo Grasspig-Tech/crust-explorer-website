@@ -1,16 +1,14 @@
 <template>
   <div class="rank-wrap">
-    <div class="main">
-      <div class="header click" @click="$router.push('/nodeRankList')">
-        <span>推荐节点排行榜</span>
-        <img :src="require('@/assets/imgs/more.png')" alt="更多" />
-      </div>
-      <div class="table-wrap">
-        <Table
-          :tableColumn="tableColumn"
-          :tableData="tableData"
-          :trColor="'#2f3346'"
-        ></Table>
+    <div class="main-box">
+      <div class="main">
+        <div class="header click" @click="$router.push('/nodeRankList')">
+          <span>推荐节点排行榜</span>
+          <img :src="require('@/assets/imgs/more.png')" alt="更多" />
+        </div>
+        <div class="table-wrap">
+          <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#2f3346'"></Table>
+        </div>
       </div>
     </div>
   </div>
@@ -28,31 +26,36 @@ export default {
           key: "node",
           headColor: "#fff",
           color: "#fff",
+          minWidth: 8
         },
         {
           title: "连接数量",
           key: "connectNum",
           color: "#fff",
           headColor: "#fff",
+          minWidth: 6
         },
         {
           title: "交易数量",
           key: "tradeNum",
           color: "#fff",
           headColor: "#fff",
+          minWidth: 6
         },
         {
           title: "区块高度",
           key: "height",
           color: "#fff",
           headColor: "#fff",
+          minWidth: 8
         },
         {
           title: "区块时间",
           key: "time",
           color: "#fff",
           headColor: "#fff",
-        },
+          minWidth: 10
+        }
       ],
       tableData: [
         {
@@ -60,82 +63,82 @@ export default {
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
+          connectNum: 1
         },
         {
           node: "pli2",
           time: "23823s",
           height: 283728,
           tradeNum: 2,
-          connectNum: 1,
-        },
-      ],
+          connectNum: 1
+        }
+      ]
     };
   },
-  methods: {},
+  methods: {}
 };
 </script>
 
@@ -143,33 +146,32 @@ export default {
 .rank-wrap {
   width: 100%;
   height: auto;
-  padding: 60px 0;
+  padding: 2rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
   .main {
-    width: 1230px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     .header {
       width: 100%;
-      margin-bottom: 30px;
+      margin-bottom: 2rem;
       span {
-        font-size: 35px;
+        font-size: 2rem;
         color: #fff;
-        margin-right: 20px;
+        margin-right: 1.8rem;
       }
       img {
-        width: 20px;
+        width: 1.5rem;
       }
     }
     .table-wrap {
       width: 100%;
       background-color: rgba(#252738, 0.7);
-      border-radius: 10px;
-      overflow: hidden;
+      border-radius: 0.8rem;
     }
   }
 }

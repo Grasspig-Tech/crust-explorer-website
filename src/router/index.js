@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 export const constantRouterMap = [
-  // { path: '/', name: 'login', component: () => import('@/views/login/index.vue')},
+  { path: '/login', name: 'login', component: () => import('@/views/login/index.vue')},
   {
     path: '/', name: 'index', redirect: "/home", component: () => import('@/views/index/index.vue'),
     children: [
@@ -43,10 +43,6 @@ export const constantRouterMap = [
         path: 'eventList', // 事件列表
         name: 'eventList',
         component: () => import('@/views/index/other/eventList/eventList.vue'),
-      }, {
-        path: 'accountList', // 账户列表
-        name: 'accountList',
-        component: () => import('@/views/index/other/accountList/accountList.vue'),
       }, {
         path: 'accountDetail', // 账户详情
         name: 'accountDetail',

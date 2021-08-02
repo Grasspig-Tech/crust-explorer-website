@@ -1,18 +1,19 @@
 <template>
   <div class="detail-wrap">
-    <div class="detail-main">
+    <div class="detail-main main-box">
       <div class="block-detail-box" v-loading="loading1">
         <div class="detail-head">
-          <div
-            class="text"
-          >{{$route.query.current==2?'候选验证人':'验证人'}} # {{ accountDisplay.display || accountDisplay.address }}</div>
+          <div class="text">
+            {{ $route.query.current == 2 ? $t('home.waitingValidators') : $t('home.validators') }} #
+            {{ accountDisplay.display || accountDisplay.address }}
+          </div>
           <div class="copy click" @click="$utils.copy($route.query.accountAddress)">
-            <img :src="require('@/assets/imgs/fuzhi.png')" alt="复制" />
-            <span>复制</span>
+            <img :src="require('@/assets/imgs/fuzhi.png')" />
+            <span>{{$t('home.copy')}}</span>
           </div>
         </div>
         <div class="detail-list" v-if="ifEmpty">
-          <div class="empty">暂无数据</div>
+          <div class="empty">{{$t('home.empty')}}</div>
         </div>
         <div class="detail-list" v-else>
           <div class="row" v-for="(item, key, index) in detail" :key="index">
@@ -22,24 +23,31 @@
                 <img v-if="!item.verify" :src="require('@/assets/imgs/weiyanzheng.png')" />
                 <img v-else :src="require('@/assets/imgs/yanzhengren.png')" />
                 <div class="float">
-                  <span>{{ item.verify ? "身份等级：一般" : "身份等级：未验证" }}</span>
+                  <span>
+                    {{
+                    item.verify ? $t('home.identity1') : $t('home.identity2')
+                    }}
+                  </span>
                 </div>
                 <div class="arrow"></div>
               </div>
-              <div class="value">
-                <span v-if="$route.query.current==2&&key=='memberRank'">候选验证人</span>
+              <div class="value break-word">
+                <span
+                  v-if="$route.query.current == 2 && key == 'memberRank'"
+                >{{$t('home.waitingValidators')}}</span>
                 <span v-else>{{ item.value == null ? "-" : item.value }}</span>
-                <span class="unit" v-if="item.value != null && item.unit">
-                  {{
-                  item.unit
-                  }}
-                </span>
+                <span class="unit" v-if="item.value != null && item.unit">{{ item.unit }}</span>
               </div>
             </div>
-            <div class="copy-wrap">
+            <div
+              class="copy-wrap"
+              :style="{
+                'margin-left': $store.state.bodyDirection == 1 ? '0' : '2rem',
+              }"
+            >
               <div class="copy" @click="$utils.copy(item.value)" v-if="item.copy">
                 <img :src="require('@/assets/imgs/fuzhi.png')" />
-                <span class="text">复制</span>
+                <span class="text" v-if="$store.state.bodyDirection == 0">{{$t('home.copy')}}</span>
               </div>
             </div>
           </div>
@@ -57,7 +65,7 @@
             >{{ item.label }}({{ item.total }})</div>
           </div>
           <div class="right click" v-if="!ifEmpty" @click="goAllList()">
-            <span>全部</span>
+            <span>{{$t('home.all')}}</span>
             <img :src="require('@/assets/imgs/more_hui.png')" alt />
           </div>
         </div>
@@ -103,50 +111,50 @@ export default {
       accountDisplay: {},
       tabs: [
         {
-          label: "提名人",
+          label: this.$t("home.nominators"),
           total: "0"
         },
         {
-          label: "收益&罚金",
+          label: this.$t("home.gainsPenalties"),
           total: "0"
         },
         {
-          label: "交易",
+          label: this.$t("home.extrinsics"),
           total: "0"
         }
       ],
       detail: {
         accountAddress: {
-          label: "账户",
+          label: this.$t("home.account"),
           value: "",
           verify: false,
           copy: true
         },
         controllerAccountAddress: {
-          label: "控制账户",
+          label: this.$t("home.controlAccount"),
           value: "",
           copy: true
         },
         memberRank: {
-          label: "排名",
+          label: this.$t("home.rank"),
           value: ""
         },
         bondedOwner: {
-          label: "验证人冻结",
+          label: this.$t("home.verifierFreeze"),
           value: "",
           unit: "CRU"
         },
         allFrozen: {
-          label: "全网冻结",
+          label: this.$t("home.totalBonded"),
           value: "",
           unit: "CRU"
         },
         countNominators: {
-          label: "提名人",
+          label: this.$t("home.nominators"),
           value: ""
         },
         guaranteeFee: {
-          label: "扣留费率",
+          label: this.$t("home.guaranteeFee"),
           value: "",
           unit: "%"
         }
@@ -161,6 +169,43 @@ export default {
   },
   created() {
     this.getDetail();
+  },
+  watch: {
+    "$i18n.locale": {
+      handler: function() {
+        this.tabs[0].label = this.$t("home.nominators");
+        this.tabs[1].label = this.$t("home.gainsPenalties");
+        this.tabs[2].label = this.$t("home.extrinsics");
+
+        this.detail.accountAddress.label = this.$t("home.account");
+        this.detail.controllerAccountAddress.label = this.$t(
+          "home.controlAccount"
+        );
+        this.detail.memberRank.label = this.$t("home.rank");
+        this.detail.bondedOwner.label = this.$t("home.verifierFreeze");
+        this.detail.allFrozen.label = this.$t("home.totalBonded");
+        this.detail.countNominators.label = this.$t("home.nominators");
+        this.detail.guaranteeFee.label = this.$t("home.guaranteeFee");
+
+        this.tableColumn1[0].title = this.$t("home.nominators");
+        this.tableColumn1[1].title = this.$t("home.nominationAmount");
+        this.tableColumn1[2].title = this.$t("home.proportion");
+
+        this.tableColumn2[0].title = this.$t("home.eventIndex");
+        this.tableColumn2[1].title = this.$t("home.block");
+        this.tableColumn2[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn2[3].title = this.$t("home.time");
+        this.tableColumn2[4].title = this.$t("home.action");
+        this.tableColumn2[5].title = this.$t("home.rewardAmount");
+
+        this.tableColumn3[0].title = this.$t("home.extrinsicIndex");
+        this.tableColumn3[1].title = this.$t("home.block");
+        this.tableColumn3[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn3[3].title = this.$t("home.time");
+        this.tableColumn3[4].title = this.$t("home.results");
+        this.tableColumn3[5].title = this.$t("home.action");
+      }
+    }
   },
   methods: {
     changeTab(index) {
@@ -266,118 +311,133 @@ export default {
       // 提名人
       this.tableColumn1 = [
         {
-          title: "账户",
+          title: this.$t("home.nominators"),
           key: "accountDisplay",
           headColor: "#333333",
           color: "#4765C0",
           path: "/accountDetail",
-          query: [{ key: "accountAddress", value: "nominatorAddress" }]
+          query: [{ key: "accountAddress", value: "nominatorAddress" }],
+          minWidth: 12
         },
         {
-          title: "提名金额",
+          title: this.$t("home.nominationAmount"),
           key: "bondedTxt",
           color: "#333",
           headColor: "#333333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 13
         },
         {
-          title: "占比",
+          title: this.$t("home.proportion"),
           key: "quotient",
           color: "#333",
           headColor: "#333333",
-          unit: "%"
+          unit: "%",
+          minWidth: 6
         }
       ];
       // 收益-罚金
       this.tableColumn2 = [
         {
-          title: "事件id",
+          title: this.$t("home.eventIndex"),
           key: "eventIndex",
           headColor: "#333333",
           color: "#4765C0",
           path: "/transactionDetail",
-          query: ["blockNum", "extrinsicIndex", "extrinsicHash"]
+          query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 8
         },
         {
-          title: "交易哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/transactionDetail",
-          query: ["blockNum", "extrinsicIndex", "extrinsicHash"]
+          query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
-          headColor: "#333333"
+          headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "操作",
+          title: this.$t("home.action"),
           key: "operation",
           color: "#333",
-          headColor: "#333333"
+          headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "数量",
+          title: this.$t("home.rewardAmount"),
           key: "amountTxt",
           color: "#333",
           headColor: "#333333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 12
         }
       ];
       // 交易
       this.tableColumn3 = [
         {
-          title: "交易id",
+          title: this.$t("home.extrinsicIndex"),
           key: "extrinsicIndex",
           headColor: "#333333",
           color: "#4765C0",
           path: "/transactionDetail",
-          query: ["blockNum", "extrinsicIndex", "extrinsicHash"]
+          query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 8
         },
         {
-          title: "交易哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/transactionDetail",
-          query: ["blockNum", "extrinsicIndex", "extrinsicHash"]
+          query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
-          headColor: "#333333"
+          headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "结果",
+          title: this.$t("home.results"),
           key: "success",
           color: "#333",
           headColor: "#333333",
-          type: "status"
+          type: "status",
+          minWidth: 8
         },
         {
-          title: "操作",
+          title: this.$t("home.action"),
           key: "operation",
           color: "#333",
-          headColor: "#333333"
+          headColor: "#333333",
+          minWidth: 14
         }
       ];
     },
@@ -413,80 +473,84 @@ export default {
 </script>
 <style lang="scss" scoped>
 .detail-wrap {
-  padding: 0 0 50px;
+  padding: 0 0 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   .detail-main {
-    margin-top: 20px;
-    width: 1230px;
+    margin-top: 1.5rem;
     .block-detail-box {
-      width: 1230px;
-      border-radius: 10px;
+      width: 100%;
+      border-radius: 0.8rem;
       background-color: #fff;
-      box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
-      margin-bottom: 10px;
+      box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
+      margin-bottom: 0.8rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 20px;
+      padding-top: 1.5rem;
       .detail-head {
-        padding: 0 10px;
+        padding: 0 0.8rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         width: auto;
-        height: 40px;
+        height: 3rem;
         background-color: #f7f7f9;
-        border-radius: 10px;
+        border-radius: 0.5rem;
         .copy {
-          border: 1px solid #e8a134;
+          border: 0.1rem solid #e8a134;
           color: #e8a134;
-          border-radius: 90px;
+          border-radius: 10rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 80px;
-          height: 30px;
-          margin-left: 20px;
+          padding: 0.3rem 1rem;
+          margin-left: 1.4rem;
+          font-size: 0.8rem;
           img {
-            width: 12px;
-            margin-right: 6px;
+            width: 0.8rem;
+            margin-right: 0.5rem;
           }
         }
         .text {
-          font-size: 16px;
+          font-size: 1.3rem;
           color: #333333;
           font-weight: bold;
         }
       }
       .detail-list {
         .empty {
-          padding: 20px 0 40px;
+          padding: 1.5rem 0 2.5rem;
         }
       }
       .detail-list {
         width: 100%;
-        padding-top: 20px;
+        padding-top: 1.5rem;
         .row {
-          height: 40px;
-          border-bottom: 1px solid #eee;
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border-bottom: 0.1rem solid #eee;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          font-size: 14px;
+          justify-content: space-around;
+          font-size: 1.2rem;
           color: #333;
           .title {
-            flex: 2;
+            flex: 1;
+            max-width: 8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .content {
-            flex: 3;
+            flex: 2;
             display: flex;
             align-items: center;
             justify-content: center;
             .unit {
-              margin-left: 6px;
+              margin-left: 0.5rem;
             }
             .icon-wrap:hover {
               overflow: inherit;
@@ -496,6 +560,7 @@ export default {
               }
             }
             .icon-wrap {
+              padding-left: 1rem;
               display: flex;
               align-items: center;
               justify-content: center;
@@ -514,27 +579,27 @@ export default {
                 left: calc(100%);
                 width: 0;
                 height: 0;
-                border-top: 6px solid transparent;
-                border-right: 10px solid #fff;
-                border-bottom: 6px solid transparent;
+                border-top: 0.5rem solid transparent;
+                border-right: 0.6rem solid #fff;
+                border-bottom: 0.5rem solid transparent;
               }
               .float {
-                left: calc(100% + 10px);
-                height: 40px;
-                padding: 20px;
+                left: calc(100% + 0.6rem);
+                height: 2.5rem;
+                padding: 1.5rem;
                 white-space: nowrap;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 10px;
+                border-radius: 0.8rem;
                 background-color: #fff;
                 color: #333;
-                font-size: 14px;
-                box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+                font-size: 0.8rem;
+                box-shadow: 0 0 0.8rem 0.2rem rgba(0, 0, 0, 0.1);
               }
               img {
-                width: 18px;
-                margin-right: 10px;
+                width: 1.1rem;
+                margin-right: 0.8rem;
               }
             }
           }
@@ -542,20 +607,19 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 200px;
             .copy {
-              border: 1px solid #e8a134;
+              padding-right: 2rem;
+              border: 0.1rem solid #e8a134;
               color: #e8a134;
-              border-radius: 90px;
-              width: 80px;
-              height: 30px;
-              font-size: 14px;
+              border-radius: 10rem;
+              padding: 0.3rem 1rem;
+              font-size: 0.8rem;
               display: flex;
               align-items: center;
               justify-content: center;
               img {
-                width: 12px;
-                margin-right: 4px;
+                width: 0.8rem;
+                margin-right: 0.2rem;
               }
             }
           }
@@ -564,30 +628,29 @@ export default {
     }
   }
   .table-wrap-box {
-    width: 1230px;
+    width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.8rem 0.1rem rgba(0, 0, 0, 0.1);
     .table-head {
       background-color: #f8f8f8;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      padding-top: 10px;
+      padding: 0.8rem 1rem 0;
       .left {
         display: flex;
         align-items: center;
         .tab-item {
-          padding: 0 40px;
+          padding: 0 1rem;
           width: auto;
-          height: 60px;
+          height: 4rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 10px 10px 0 0;
-          font-size: 16px;
+          border-radius: 0.8rem 0.8rem 0 0;
+          font-size: 1.3rem;
           font-weight: bold;
         }
         .active {
@@ -596,32 +659,20 @@ export default {
         }
       }
       .right {
+        display: flex;
+        align-items: center;
         span {
           color: #bcbcbc;
-          font-size: 16px;
+          font-size: 1.2rem;
         }
         img {
-          width: 12px;
-          margin-left: 10px;
+          width: 1rem;
+          margin-left: 0.8rem;
         }
       }
     }
     .table-box {
       width: 100%;
-    }
-  }
-  .bottom-table-wrap {
-    width: 1230px;
-    .bottom-head {
-      font-size: 35px;
-      color: #333;
-      font-weight: bold;
-      padding: 40px 0 10px;
-    }
-    .bottom-table {
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
     }
   }
 }
@@ -632,8 +683,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

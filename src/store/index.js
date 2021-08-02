@@ -9,7 +9,9 @@ export default new Vuex.Store({
 		vuethis: null, // this
 		loadingInstance: null, // 加载loading
 		keepFourLength: ['allFrozen', 'bondedOwner', 'ownerActivePledge', 'pledgeTotal', 'pledgeMax', 'amount'], // 保留四位小数
-		keepTwoLength: ['guaranteeFee','quotient'], // 保留两位小数
+		keepTwoLength: ['guaranteeFee', 'quotient'], // 保留两位小数
+		bodyWidth: 0,
+		bodyDirection: 0, // 0：横屏 1：竖屏
 	},
 	mutations: {
 		//获取this
@@ -33,6 +35,11 @@ export default new Vuex.Store({
 			state.vuethis.$session.set("menuActive", index);
 			state.vuethis.$session.set("subActive", i);
 		},
+		// 修改body横屏竖屏，宽高
+		changeBodyData(state, { bodyDirection, bodyWidth }) {
+			if (bodyWidth) state.bodyWidth = bodyWidth
+			if (bodyDirection == 1 || bodyDirection == 0) state.bodyDirection = bodyDirection
+		}
 	},
 	actions: {
 		// 

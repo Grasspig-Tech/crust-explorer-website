@@ -1,15 +1,33 @@
 <template>
   <div class="block-wrap">
-    <div class="title">基础费率走势</div>
-    <div class="chart-wrap-box">
-      <div class="chart-tab">
-        <div class="tab-item click" :class="chartCurrent==0?'tab-active':''" @click="chartCurrent=0">24小时</div>
-        <div class="tab-item click" :class="chartCurrent==1?'tab-active':''" @click="chartCurrent=1">7天</div>
-        <div class="tab-item click" :class="chartCurrent==2?'tab-active':''" @click="chartCurrent=2">30天</div>
-        <div class="tab-item click" :class="chartCurrent==3?'tab-active':''" @click="chartCurrent=3">1年</div>
-      </div>
-      <div class="chart">
-        <Chart :option="option"></Chart>
+    <div class="main-box">
+      <div class="title">基础费率走势</div>
+      <div class="chart-wrap-box">
+        <div class="chart-tab">
+          <div
+            class="tab-item click"
+            :class="chartCurrent==0?'tab-active':''"
+            @click="chartCurrent=0"
+          >24小时</div>
+          <div
+            class="tab-item click"
+            :class="chartCurrent==1?'tab-active':''"
+            @click="chartCurrent=1"
+          >7天</div>
+          <div
+            class="tab-item click"
+            :class="chartCurrent==2?'tab-active':''"
+            @click="chartCurrent=2"
+          >30天</div>
+          <div
+            class="tab-item click"
+            :class="chartCurrent==3?'tab-active':''"
+            @click="chartCurrent=3"
+          >1年</div>
+        </div>
+        <div class="chart">
+          <Chart :option="option"></Chart>
+        </div>
       </div>
     </div>
   </div>
@@ -29,7 +47,7 @@ export default {
           trigger: "axis"
         },
         grid: {
-          top: '20%',
+          top: "20%",
           left: "3%",
           right: "3%",
           bottom: "5%",
@@ -82,8 +100,7 @@ export default {
   watch: {
     chartCurrent(val) {}
   },
-  created() {
-  },
+  created() {},
   methods: {}
 };
 </script>
@@ -95,22 +112,22 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0 100px;
+  padding: 2.5rem 0 4rem;
   .title {
-    font-size: 35px;
+    font-size: 2rem;
     color: #333333;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
   }
   .chart-wrap-box {
-    width: 1230px;
-    height: 400px;
-    border-radius: 10px;
+    width: 100%;
+    height: 31rem;
+    border-radius: .8rem;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 1.5rem .2rem rgba(0, 0, 0, 0.1);
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: .8rem;
     .chart {
       position: absolute;
       z-index: 1;
@@ -120,15 +137,15 @@ export default {
     .chart-tab {
       position: relative;
       z-index: 2;
-      height: 60px;
+      height: 3.5rem;
       display: flex;
       align-items: center;
       .tab-item {
-        margin-left: 20px;
-        font-size: 16px;
+        margin-left: 1.5rem;
+        font-size: 1rem;
         color: #333333;
-        border-radius: 20px;
-        padding: 4px 10px;
+        border-radius: 1.5rem;
+        padding: .3rem .8rem;
       }
       .tab-active {
         background-color: #fbd100;

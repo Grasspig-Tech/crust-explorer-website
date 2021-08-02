@@ -1,18 +1,25 @@
 <template>
   <div class="block-wrap">
-    <div class="table-wrap">
-      <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
-    </div>
-    <div class="page-wrap">
-      <el-pagination
-        :disabled="loading"
-        background
-        :page-size="pageData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageData.total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-      ></el-pagination>
+    <div class="main-box">
+      <div class="table-wrap">
+        <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
+      </div>
+      <div class="page-wrap">
+        <el-pagination
+          :disabled="loading"
+          background
+          :page-size="pageData.pageSize"
+          :layout="
+            $store.state.bodyDirection == 1
+              ? 'prev, pager, next'
+              : 'total, sizes, prev, pager, next, jumper'
+          "
+          :pager-count="$store.state.bodyDirection == 1 ? 5 : 7"
+          :total="pageData.total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -32,65 +39,85 @@ export default {
       },
       tableColumn: [
         {
-          title: "区块高度",
+          title: this.$t("home.blocks"),
           key: "blockNum",
           headColor: "#333333",
           color: "#4765C0",
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 8
         },
         {
-          title: "状态",
+          title: this.$t("home.status"),
           key: "finalized",
           color: "#333333",
           headColor: "#333333",
-          type: "status"
+          type: "status",
+          minWidth: 6
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333333",
-          headColor: "#333333"
+          headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "交易数量",
+          title: this.$t("home.numberOfExtrinsics"),
           key: "extrinsicsCount",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 6
         },
         {
-          title: "事件数量",
+          title: this.$t("home.numberOfEvents"),
           key: "eventCount",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
-          query: ["blockNum", { current: 2 }]
+          query: ["blockNum", { current: 2 }],
+          minWidth: 6
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#4765C0",
           headColor: "#333333",
           type: "img",
           path: "/verifierDetail",
-          query: [{ key: "accountAddress", value: "validator" }]
+          query: [{ key: "accountAddress", value: "validator" }],
+          minWidth: 12
         },
         {
-          title: "区块哈希",
+          title: this.$t("home.blockHash"),
           key: "hash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
-          query: ["blockNum"]
-        },
+          query: ["blockNum"],
+          minWidth: 12
+        }
       ],
       tableData: []
     };
   },
   created() {
     this.getList();
+  },
+  watch: {
+    "$i18n.locale": {
+      handler: function() {
+        this.tableColumn[0].title = this.$t("home.blocks");
+        this.tableColumn[1].title = this.$t("home.status");
+        this.tableColumn[2].title = this.$t("home.time");
+        this.tableColumn[3].title = this.$t("home.numberOfExtrinsics");
+        this.tableColumn[4].title = this.$t("home.numberOfEvents");
+        this.tableColumn[5].title = this.$t("home.validators");
+        this.tableColumn[6].title = this.$t("home.blockHash");
+      }
+    }
   },
   methods: {
     getList() {
@@ -124,15 +151,15 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 50px 0;
+  padding: 2rem 0;
   .table-wrap {
-    width: 1230px;
+    width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
   }
   .page-wrap {
-    margin-top: 30px;
+    margin-top: 1.8rem;
   }
 }
 ::v-deep .el-pagination.is-background li:not(.disabled).active {
@@ -142,8 +169,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

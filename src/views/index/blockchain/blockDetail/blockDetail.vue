@@ -1,110 +1,94 @@
 <template>
   <div class="block-wrap">
-    <div class="block-detail-box" v-loading="loading1">
-      <div class="detail-head">
-        <div class="left arrow click" @click="changeNum(-1)">
-          <img :src="require('@/assets/imgs/left.png')" />
+    <div class="main-box">
+      <div class="block-detail-box" v-loading="loading1">
+        <div class="detail-head">
+          <div class="left arrow click" @click="changeNum(-1)">
+            <img :src="require('@/assets/imgs/left.png')" />
+          </div>
+          <div class="text">{{$t('home.block')}} # {{ blockNum }}</div>
+          <div class="right arrow click" @click="changeNum(1)">
+            <img :src="require('@/assets/imgs/right.png')" />
+          </div>
         </div>
-        <div class="text">区块 # {{ blockNum }}</div>
-        <div class="right arrow click" @click="changeNum(1)">
-          <img :src="require('@/assets/imgs/right.png')" />
+        <div class="detail-main" v-if="ifEmpty">
+          <div class="empty">{{$t('home.empty')}}</div>
         </div>
-      </div>
-      <div class="detail-main" v-if="ifEmpty">
-        <div class="empty">暂无数据</div>
-      </div>
-      <div class="detail-main" v-else>
-        <div class="row" v-for="(item, key, index) in detail" :key="index">
-          <div class="title">{{ item.label }}</div>
-          <div
-            class="content"
-            :class="item.path ? 'click' : ''"
-            @click="goPath(item, key)"
-          >
-            <div class="icon-wrap">
-              <img
-                v-if="!item.verify && key == 'validator'"
-                :src="require('@/assets/imgs/weiyanzheng.png')"
-              />
-              <img
-                v-if="item.verify && key == 'validator'"
-                :src="require('@/assets/imgs/yanzhengren.png')"
-              />
-              <img
-                v-if="!item.finalized && key == 'status'"
-                :src="require('@/assets/imgs/dengdai.png')"
-              />
-              <img
-                v-if="item.finalized && key == 'status'"
-                :src="require('@/assets/imgs/chenggong.png')"
-              />
-              <div class="float" v-if="key == 'validator'">
-                <span>
-                  {{ item.verify ? "身份等级：一般" : "身份等级：未验证" }}
-                </span>
+        <div class="detail-main" v-else>
+          <div class="row" v-for="(item, key, index) in detail" :key="index">
+            <div class="title">{{ item.label }}</div>
+            <div class="content" :class="item.path ? 'click' : ''" @click="goPath(item, key)">
+              <div class="icon-wrap">
+                <img
+                  v-if="!item.verify && key == 'validator'"
+                  :src="require('@/assets/imgs/weiyanzheng.png')"
+                />
+                <img
+                  v-if="item.verify && key == 'validator'"
+                  :src="require('@/assets/imgs/yanzhengren.png')"
+                />
+                <img
+                  v-if="!item.finalized && key == 'status'"
+                  :src="require('@/assets/imgs/dengdai.png')"
+                />
+                <img
+                  v-if="item.finalized && key == 'status'"
+                  :src="require('@/assets/imgs/chenggong.png')"
+                />
+                <div class="float" v-if="key == 'validator'">
+                  <span>{{ item.verify ? $t('home.identity1') : $t('home.identity2') }}</span>
+                </div>
+                <div class="arrow" v-if="key == 'validator'"></div>
               </div>
-              <div class="arrow" v-if="key == 'validator'"></div>
+              <div
+                class="value break-word"
+                v-if="key == 'blockTimestamp'"
+              >{{ $utils.getLastTime(item.value) }}</div>
+              <div class="value break-word" v-if="key == 'date'">{{ $utils.toUTCtime(item.value) }}</div>
+              <div class="value break-word" v-if="key != 'blockTimestamp' && key != 'date'">
+                <span v-if="item.value1">{{ item.value1 }}</span>
+                <span>{{ item.value }}</span>
+              </div>
             </div>
-            <div class="value break-word" v-if="key == 'blockTimestamp'">
-              {{ $utils.getLastTime(item.value) }}
-            </div>
-            <div class="value break-word" v-if="key == 'date'">
-              {{ $utils.toUTCtime(item.value) }}
-            </div>
-            <div
-              class="value break-word"
-              v-if="key != 'blockTimestamp' && key != 'date'"
-            >
-              <span v-if="item.value1">{{ item.value1 }}</span>
-              <span>{{ item.value }}</span>
-            </div>
-          </div>
-          <div class="copy-wrap">
-            <div
-              class="copy click"
-              @click="$utils.copy(item.value)"
-              v-if="item.copy"
-            >
-              <img :src="require('@/assets/imgs/fuzhi.png')" />
-              <span class="text">复制</span>
+            <div class="copy-wrap">
+              <div class="copy click" @click="$utils.copy(item.value)" v-if="item.copy">
+                <img :src="require('@/assets/imgs/fuzhi.png')" />
+                <span class="text" v-if="$store.state.bodyDirection == 0">{{$t('home.copy')}}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="table-wrap-box">
-      <div class="table-head">
-        <div class="left">
-          <div
-            class="tab-item click"
-            :class="current == 1 ? 'active' : ''"
-            @click="changeTab(1)"
-          >
-            交易({{ extrinsicsCount }})
+      <div class="table-wrap-box">
+        <div class="table-head">
+          <div class="left">
+            <div
+              class="tab-item click"
+              :class="current == 1 ? 'active' : ''"
+              @click="changeTab(1)"
+            >{{$t('home.extrinsics')}}({{ extrinsicsCount }})</div>
+            <div
+              class="tab-item click"
+              :class="current == 2 ? 'active' : ''"
+              @click="changeTab(2)"
+            >{{$t('home.event')}}({{ eventCount }})</div>
           </div>
-          <div
-            class="tab-item click"
-            :class="current == 2 ? 'active' : ''"
-            @click="changeTab(2)"
-          >
-            事件({{ eventCount }})
+          <div class="right click" v-if="!ifEmpty" @click="goAllPath()">
+            <span>{{$t('home.all')}}</span>
+            <img :src="require('@/assets/imgs/more_hui.png')" alt />
           </div>
         </div>
-        <div class="right click" v-if="!ifEmpty" @click="goAllPath()">
-          <span>全部</span>
-          <img :src="require('@/assets/imgs/more_hui.png')" alt />
-        </div>
-      </div>
-      <div class="table-box">
-        <Table
-          :tableColumn="
+        <div class="table-box">
+          <Table
+            :tableColumn="
             current == 1 ? tableColumn1 : current == 2 ? tableColumn2 : ''
           "
-          :tableData="
+            :tableData="
             current == 1 ? tableData1 : current == 2 ? tableData2 : ''
           "
-          :trColor="'#F1F0EE'"
-        ></Table>
+            :trColor="'#F1F0EE'"
+          ></Table>
+        </div>
       </div>
     </div>
   </div>
@@ -128,118 +112,127 @@ export default {
       accountDisplay: {},
       detail: {
         date: {
-          label: "时间戳",
-          value: "",
+          label: this.$t("home.time"),
+          value: ""
         },
         status: {
-          label: "块状态",
+          label: this.$t("home.status"),
           value: "",
-          finalized: true,
+          finalized: true
         },
         hash: {
-          label: "哈希",
+          label: this.$t("home.blockHash"),
           value: "",
-          copy: true,
+          copy: true
         },
         parentHash: {
-          label: "父哈希",
+          label: this.$t("home.blockParentHash"),
           value: "",
-          path: "/blockDetail",
+          path: "/blockDetail"
         },
         stateRoot: {
-          label: "状态根",
-          value: "",
+          label: this.$t("home.stateRoot"),
+          value: ""
         },
         extrinsicsRoot: {
-          label: "交易根",
-          value: "",
+          label: this.$t("home.transactionRoot"),
+          value: ""
         },
         validator: {
-          label: "验证人",
+          label: this.$t("home.validators"),
           value: "",
           value1: "",
           verify: true,
           copy: true,
           path: "/verifierDetail",
-          query: ["accountAddress"],
+          query: ["accountAddress"]
         },
         blockTimestamp: {
-          label: "出块时间",
-          value: "",
+          label: this.$t("home.blockTime"),
+          value: ""
         },
         specVersion: {
-          label: "运行时版本",
-          value: "",
-        },
+          label: this.$t("home.runtimeVersion"),
+          value: ""
+        }
       },
       tableColumn1: [
         {
-          title: "交易id",
+          title: this.$t("home.extrinsicIndex"),
           key: "extrinsicIndex",
           headColor: "#333333",
           color: "#4765C0",
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#333",
           headColor: "#333333",
+          minWidth: 8
         },
         {
-          title: "哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
           headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "结果",
+          title: this.$t("home.results"),
           key: "success",
           color: "#333",
           headColor: "#333333",
           type: "status",
-        },
+          minWidth: 8
+        }
       ],
       tableColumn2: [
         {
-          title: "事件id",
+          title: this.$t("home.eventIndex"),
           key: "eventIndex",
           headColor: "#333333",
           color: "#333",
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#333",
           headColor: "#333333",
+          minWidth: 8
         },
         {
-          title: "哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
           headColor: "#333333",
-        },
+          minWidth: 10
+        }
       ],
       tableData1: [],
       tableData2: [],
-      blockNum: "", // 区块号
+      blockNum: "" // 区块号
     };
   },
   created() {
@@ -254,6 +247,30 @@ export default {
       this.loading1 = true;
       this.getDetail();
     },
+    "$i18n.locale": {
+      handler: function() {
+        this.detail.date.label = this.$t("home.extrinsicRecord");
+        this.detail.status.label = this.$t("home.status");
+        this.detail.hash.label = this.$t("home.blockHash");
+        this.detail.parentHash.label = this.$t("home.blockParentHash");
+        this.detail.stateRoot.label = this.$t("home.stateRoot");
+        this.detail.extrinsicsRoot.label = this.$t("home.transactionRoot");
+        this.detail.validator.label = this.$t("home.validators");
+        this.detail.blockTimestamp.label = this.$t("home.blockTime");
+        this.detail.specVersion.label = this.$t("home.runtimeVersion");
+
+        this.tableColumn1[0].title = this.$t("home.extrinsicIndex");
+        this.tableColumn1[1].title = this.$t("home.block");
+        this.tableColumn1[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn1[3].title = this.$t("home.time");
+        this.tableColumn1[4].title = this.$t("home.results");
+
+        this.tableColumn2[0].title = this.$t("home.eventIndex");
+        this.tableColumn2[1].title = this.$t("home.block");
+        this.tableColumn2[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn2[3].title = this.$t("home.time");
+      }
+    }
   },
   methods: {
     goAllPath() {
@@ -272,7 +289,7 @@ export default {
       this.$router.push(`/blockDetail?blockNum=${this.blockNum}`);
     },
     getDetail() {
-      getBlockDetailByNumApi(this.blockNum).then((res) => {
+      getBlockDetailByNumApi(this.blockNum).then(res => {
         if (res.code == 200) {
           if (res.data) {
             this.ifEmpty = false;
@@ -310,8 +327,8 @@ export default {
         getBlockExtrinsicApi({
           blockNum: this.blockNum,
           page: 1,
-          pageSize: 10,
-        }).then((res) => {
+          pageSize: 10
+        }).then(res => {
           if (res.code == 200) {
             this.tableData1 = res.data.records;
             if (res.data.records.length == 0) {
@@ -327,8 +344,8 @@ export default {
         getBlockEventApi({
           blockNum: this.blockNum,
           page: 1,
-          pageSize: 10,
-        }).then((res) => {
+          pageSize: 10
+        }).then(res => {
           if (res.code == 200) {
             this.tableData2 = res.data.records;
             if (res.data.records.length == 0) {
@@ -351,7 +368,7 @@ export default {
       if (this.$router.currentRoute.path != item.path) {
         var query = "";
         if (item.query.length > 0) {
-          item.query.map((t) => {
+          item.query.map(t => {
             query += `${t}=${item.value}`;
           });
           this.$router.push(item.path + `?${query}`);
@@ -359,8 +376,8 @@ export default {
           this.$router.push(item.path);
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -371,68 +388,72 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 0 50px;
+  padding: 1.5rem 0 3rem;
   .block-detail-box {
-    width: 1230px;
-    border-radius: 10px;
+    width: 100%;
+    border-radius: 0.8rem;
     background-color: #fff;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+    padding-top: 1.5rem;
     .detail-head {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 330px;
-      height: 40px;
+      width: 20rem;
+      height: 2.5rem;
       background-color: #f7f7f9;
-      border-radius: 10px;
+      border-radius: 0.8rem;
       .text {
         flex: 1;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 1.2rem;
         color: #333333;
         font-weight: bold;
       }
       .arrow {
         background-color: #fff;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.8rem;
+        box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
         img {
-          width: 11px;
+          width: 0.6rem;
         }
       }
     }
     .detail-main {
       width: 100%;
-      padding-top: 20px;
+      padding-top: 1.5rem;
       .empty {
-        font-size: 16px;
-        margin: 40px 0 60px;
+        font-size: 1rem;
+        margin: 2.5rem 0 3.5rem;
       }
       .row {
-        min-height: 40px;
-        padding: 10px 0;
+        min-height: 2.5rem;
+        padding: 0.8rem 1rem;
         line-height: 1.6;
-        border-bottom: 1px solid #eee;
+        border-bottom: 0.1rem solid #eee;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
+        justify-content: space-around;
+        font-size: 1.1rem;
         color: #333;
         .title {
           flex: 1;
+          max-width: 8rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .content.click {
           color: #4765c0;
@@ -442,11 +463,7 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
-          .value {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-          }
+
           .icon-wrap:hover {
             overflow: inherit;
             .float,
@@ -455,11 +472,11 @@ export default {
             }
           }
           .icon-wrap {
-            margin-right: 10px;
             display: flex;
             align-items: center;
             position: relative;
             overflow: hidden;
+            min-width: 2rem;
             .arrow,
             .float {
               opacity: 0;
@@ -473,27 +490,27 @@ export default {
               left: calc(100%);
               width: 0;
               height: 0;
-              border-top: 6px solid transparent;
-              border-right: 10px solid #fff;
-              border-bottom: 6px solid transparent;
+              border-top: 0.5rem solid transparent;
+              border-right: 0.6rem solid #fff;
+              border-bottom: 0.5rem solid transparent;
             }
             .float {
-              left: calc(100% + 10px);
-              height: 40px;
-              padding: 20px;
+              left: calc(100% + 0.6rem);
+              height: 2.5rem;
+              padding: 1.5rem;
               white-space: nowrap;
               display: flex;
               align-items: center;
               justify-content: center;
-              border-radius: 10px;
+              border-radius: 0.8rem;
               background-color: #fff;
               color: #333;
-              font-size: 14px;
-              box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+              font-size: 1rem;
+              box-shadow: 0 0 0.8rem 0.2rem rgba(0, 0, 0, 0.1);
             }
             img {
-              width: 18px;
-              margin-right: 6px;
+              width: 1.4rem;
+              margin-right: 0.5rem;
             }
           }
         }
@@ -501,20 +518,19 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 160px;
           .copy {
-            border: 1px solid #e8a134;
+            padding-right: 2rem;
+            border: 0.1rem solid #e8a134;
             color: #e8a134;
-            border-radius: 90px;
-            width: 70px;
-            height: 30px;
-            font-size: 14px;
+            border-radius: 10rem;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
             img {
-              width: 12px;
-              margin-right: 4px;
+              width: 0.8rem;
+              margin-right: 0.2rem;
             }
           }
         }
@@ -523,30 +539,30 @@ export default {
   }
   .table-wrap-box {
     overflow: hidden;
-    width: 1230px;
+    width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
     .table-head {
       background-color: #f8f8f8;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      padding-top: 10px;
+      padding: 0 1.8rem;
+      padding-top: 0.8rem;
       .left {
         display: flex;
         align-items: center;
         .tab-item {
-          padding: 0 40px;
+          padding: 0 2.5rem;
           width: auto;
-          height: 60px;
+          height: 3.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 10px 10px 0 0;
-          font-size: 16px;
+          border-radius: 0.8rem 0.8rem 0 0;
+          font-size: 1.2rem;
           font-weight: bold;
           color: #333;
         }
@@ -556,13 +572,15 @@ export default {
         }
       }
       .right {
+        display: flex;
+        align-items: center;
         span {
           color: #bcbcbc;
-          font-size: 16px;
+          font-size: 1.2rem;
         }
         img {
-          width: 12px;
-          margin-left: 10px;
+          width: 1rem;
+          margin-left: 0.8rem;
         }
       }
     }

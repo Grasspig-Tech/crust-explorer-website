@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <img class="logo" :src="require('@/assets/imgs/logo_bai.png')" alt="logo" />
-    <!-- <div class="btn click">了解更多</div> -->
+    <!-- <div class="btn click">{{$t('home.learnMore')}}</div> -->
   </div>
 </template>
 
@@ -19,20 +19,19 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 160px 0;
+  padding: 8rem 0;
   .logo {
-    width: 570px;
+    width: 34rem;
   }
   .btn {
-    // margin-top: 60px;
-    width: 140px;
-    height: 40px;
+    width: 9rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 90px;
-    border: 1px solid #ffffff;
-    font-size: 20px;
+    border-radius: 10rem;
+    border: 0.1rem solid #ffffff;
+    font-size: 1.5rem;
     color: #fff;
   }
 }

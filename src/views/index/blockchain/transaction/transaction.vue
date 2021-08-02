@@ -1,70 +1,65 @@
 <template>
   <div class="block-wrap">
-    <div class="title">历史交易记录</div>
-    <div class="from" v-if="$route.query">
-      <span v-if="$route.query.blockNum"
-        >区块 # {{ $route.query.blockNum }}（{{ pageData.total }}）</span
-      >
-      <div class="item-wrap" v-if="$route.query.accountDisplay">
-        <div class="img-wrap">
-          <img
-            v-if="getAccountDisplay().judgements.length > 0"
-            :src="require('@/assets/imgs/yanzhengren.png')"
-          />
-          <img v-else :src="require('@/assets/imgs/weiyanzheng.png')" />
-          <div class="float">
-            <span>
-              {{
-                getAccountDisplay().judgements.length > 0
-                  ? "身份等级：一般"
-                  : "身份等级：未验证"
-              }}
-            </span>
-          </div>
-          <div class="arrow"></div>
-        </div>
+    <div class="main-box">
+      <div class="title">{{$t('home.extrinsicHistory')}}</div>
+      <div class="from" v-if="$route.query">
         <span
-          >{{
+          v-if="$route.query.blockNum"
+        >{{$t('home.block')}} # {{ $route.query.blockNum }}（{{ pageData.total }}）</span>
+        <div class="item-wrap" v-if="$route.query.accountDisplay">
+          <div class="img-wrap">
+            <img
+              v-if="getAccountDisplay().judgements.length > 0"
+              :src="require('@/assets/imgs/yanzhengren.png')"
+            />
+            <img v-else :src="require('@/assets/imgs/weiyanzheng.png')" />
+            <div class="float">
+              <span>
+                {{
+                getAccountDisplay().judgements.length > 0
+                ? $t('home.identity1')
+                : $t('home.identity2')
+                }}
+              </span>
+            </div>
+            <div class="arrow"></div>
+          </div>
+          <span>
+            {{
             getAccountDisplay().display ||
             getAccountDisplay().address ||
             $route.query.accountAddress
-          }}
-          （{{ pageData.total }}）</span
-        >
-      </div>
-    </div>
-    <div class="chart-wrap-box" v-if="Object.keys($route.query).length == 0">
-      <div class="chart-tab">
-        <div
-          class="tab-item click"
-          :class="chartCurrent == 0 ? 'tab-active' : ''"
-          @click="chartCurrent = 0"
-        >
-          1h
-        </div>
-        <div
-          class="tab-item click"
-          :class="chartCurrent == 1 ? 'tab-active' : ''"
-          @click="chartCurrent = 1"
-        >
-          6h
-        </div>
-        <div
-          class="tab-item click"
-          :class="chartCurrent == 2 ? 'tab-active' : ''"
-          @click="chartCurrent = 2"
-        >
-          1d
+            }}
+            （{{ pageData.total }}）
+          </span>
         </div>
       </div>
-      <div class="chart">
-        <Chart :option="option" v-loading="loading1"></Chart>
+      <div class="chart-wrap-box" v-if="Object.keys($route.query).length == 0">
+        <div class="chart-tab">
+          <div
+            class="tab-item click"
+            :class="chartCurrent == 0 ? 'tab-active' : ''"
+            @click="chartCurrent = 0"
+          >1h</div>
+          <div
+            class="tab-item click"
+            :class="chartCurrent == 1 ? 'tab-active' : ''"
+            @click="chartCurrent = 1"
+          >6h</div>
+          <div
+            class="tab-item click"
+            :class="chartCurrent == 2 ? 'tab-active' : ''"
+            @click="chartCurrent = 2"
+          >1d</div>
+        </div>
+        <div class="chart">
+          <Chart :option="option" v-loading="loading1"></Chart>
+        </div>
       </div>
-    </div>
-    <div class="table-wrap">
-      <div class="table-head">
-        <div class="left">全部（{{ pageData.total }}）</div>
-        <!-- <div class="right">
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="left">{{$t('home.all')}}（{{ pageData.total }}）</div>
+          <!-- <div class="right">
           <div class="item">
             <label class="label">日期：</label>
             <el-date-picker
@@ -86,24 +81,26 @@
           <div class="item">
             <el-button>筛选</el-button>
           </div>
-        </div>-->
+          </div>-->
+        </div>
+        <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
       </div>
-      <Table
-        :tableColumn="tableColumn"
-        :tableData="tableData"
-        :trColor="'#F1F0EE'"
-      ></Table>
-    </div>
-    <div class="page-wrap">
-      <el-pagination
-        :disabled="loading"
-        background
-        :page-size="pageData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageData.total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-      ></el-pagination>
+      <div class="page-wrap">
+        <el-pagination
+          :disabled="loading"
+          background
+          :page-size="pageData.pageSize"
+          :layout="
+            $store.state.bodyDirection == 1
+              ? 'prev, pager, next'
+              : 'total, sizes, prev, pager, next, jumper'
+          "
+          :pager-count="$store.state.bodyDirection == 1 ? 5 : 7"
+          :total="pageData.total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -115,7 +112,7 @@ import Table from "@/components/tableStatus.vue";
 import {
   getExtrinsicListApi,
   getBlockExtrinsicApi,
-  getExtrinsicLineApi,
+  getExtrinsicLineApi
 } from "@/api/extrinsic.js";
 export default {
   components: { Chart, Table },
@@ -127,56 +124,62 @@ export default {
       pageData: {
         pageSize: 10,
         page: 1,
-        total: 0,
+        total: 0
       },
       screen: {
         dateRange: "", //日期区间
-        account: "", //账户
+        account: "" //账户
       },
       tableColumn: [
         {
-          title: "交易id",
+          title: this.$t("home.extrinsicIndex"),
           key: "extrinsicIndex",
           headColor: "#333333",
           color: "#4765C0",
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#4765C0",
           headColor: "#333333",
           path: "/blockDetail",
           query: ["blockNum"],
+          minWidth: 8
         },
         {
-          title: "交易哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
           headColor: "#333333",
+          minWidth: 10
         },
         {
-          title: "操作",
-          key: "operation",
-          color: "#333",
-          headColor: "#333333",
-        },
-        {
-          title: "结果",
+          title: this.$t("home.results"),
           key: "success",
           color: "#333",
           headColor: "#333333",
           type: "status",
+          minWidth: 8
         },
+        {
+          title: this.$t("home.action"),
+          key: "operation",
+          color: "#333",
+          headColor: "#333333",
+          minWidth: 12
+        }
       ],
       tableData: [],
       // option: {
@@ -219,29 +222,28 @@ export default {
       // },
       option: {
         tooltip: {
-          trigger: "axis",
+          trigger: "axis"
         },
         grid: {
           top: "20%",
           left: "3%",
           right: "3%",
           bottom: "5%",
-          containLabel: true,
+          containLabel: true
         },
         xAxis: { type: "category", boundaryGap: false, data: [] },
         yAxis: [
           {
-            type: "value",
-          },
+            type: "value"
+          }
         ],
         series: [
           {
-            name: "交易记录",
+            name: this.$t("home.extrinsicRecord"),
             type: "line",
-            stack: "次数",
             smooth: true,
             lineStyle: {
-              color: "#D357FF",
+              color: "#D357FF"
             },
             showSymbol: false,
             areaStyle: {
@@ -249,27 +251,28 @@ export default {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 {
                   offset: 0,
-                  color: "rgba(210,87,254,.4)",
+                  color: "rgba(210,87,254,.4)"
                 },
                 {
                   offset: 1,
-                  color: "rgba(56,49,193,.1)",
-                },
-              ]),
+                  color: "rgba(56,49,193,.1)"
+                }
+              ])
             },
             emphasis: {
-              focus: "series",
+              focus: "series"
             },
-            data: [],
-          },
-        ],
-      },
+            data: []
+          }
+        ]
+      }
     };
   },
   watch: {
     chartCurrent(val) {
       this.option.xAxis.data = [];
       this.option.series[0].data = [];
+      this.loading1 = true;
       if (Object.keys(this.$route.query).length == 0) this.getLine();
     },
     $route(to, from) {
@@ -278,6 +281,18 @@ export default {
       this.getList();
       if (Object.keys(this.$route.query).length == 0) this.getLine();
     },
+    "$i18n.locale": {
+      handler: function() {
+        this.option.series[0].name = this.$t("home.extrinsicRecord");
+
+        this.tableColumn[0].title = this.$t("home.extrinsicIndex");
+        this.tableColumn[1].title = this.$t("home.block");
+        this.tableColumn[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn[3].title = this.$t("home.time");
+        this.tableColumn[4].title = this.$t("home.results");
+        this.tableColumn[5].title = this.$t("home.action");
+      }
+    }
   },
   created() {
     this.getList();
@@ -292,8 +307,8 @@ export default {
       if (this.$route.query.blockNum) {
         getBlockExtrinsicApi({
           blockNum: this.$route.query.blockNum,
-          ...this.pageData,
-        }).then((res) => {
+          ...this.pageData
+        }).then(res => {
           if (res.code == 200) {
             this.pageData.total = res.data.total;
             this.tableData = res.data.records;
@@ -303,8 +318,8 @@ export default {
       } else {
         getExtrinsicListApi({
           address: this.$route.query.accountAddress || "",
-          ...this.pageData,
-        }).then((res) => {
+          ...this.pageData
+        }).then(res => {
           if (res.code == 200) {
             this.pageData.total = res.data.total;
             this.tableData = res.data.records;
@@ -328,9 +343,9 @@ export default {
         default:
           break;
       }
-      getExtrinsicLineApi(key).then((res) => {
+      getExtrinsicLineApi(key).then(res => {
         if (res.code == 200) {
-          res.data.map((item) => {
+          res.data.map(item => {
             this.option.xAxis.data.push(item.timeStr || "");
             this.option.series[0].data.push(item.totalTimes || 0);
           });
@@ -345,8 +360,8 @@ export default {
     handleSizeChange(val) {
       this.pageData.pageSize = val;
       this.getList();
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -357,18 +372,17 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0 100px;
+  padding: 2rem 0 4rem;
   .title {
-    font-size: 35px;
+    font-size: 2rem;
     color: #333333;
     font-weight: bold;
-    margin-bottom: 20px;
   }
   .from {
-    font-size: 20px;
+    font-size: 1.5rem;
     columns: #333;
-    margin-bottom: 20px;
     display: flex;
+    margin: 1.2rem 0 2rem;
     align-items: center;
     justify-content: center;
     > div {
@@ -377,8 +391,8 @@ export default {
       justify-content: center;
     }
     img {
-      margin-right: 10px;
-      width: 18px;
+      margin-right: 0.8rem;
+      width: 1.2rem;
     }
     .img-wrap:hover {
       overflow: inherit;
@@ -405,39 +419,39 @@ export default {
         left: calc(100%);
         width: 0;
         height: 0;
-        border-top: 6px solid transparent;
-        border-right: 10px solid #fff;
-        border-bottom: 6px solid transparent;
+        border-top: 0.5rem solid transparent;
+        border-right: 0.6rem solid #fff;
+        border-bottom: 0.5rem solid transparent;
       }
       .float {
-        left: calc(100% + 10px);
-        height: 40px;
-        padding: 20px;
+        left: calc(100% + 0.6rem);
+        height: 2.5rem;
+        padding: 1.5rem;
         white-space: nowrap;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
+        border-radius: 0.8rem;
         background-color: #fff;
         color: #333;
-        font-size: 14px;
-        box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+        font-size: 1rem;
+        box-shadow: 0 0 0.8rem 0.2rem rgba(0, 0, 0, 0.1);
       }
       img {
-        width: 18px;
-        margin-right: 6px;
+        width: 1.2rem;
+        margin-right: 0.5rem;
       }
     }
   }
   .chart-wrap-box {
-    width: 1230px;
-    height: 350px;
-    border-radius: 10px;
+    width: 100%;
+    height: 22rem;
+    border-radius: 0.8rem;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
     position: relative;
-    margin-bottom: 10px;
+    margin: 0 0 1rem;
     .chart {
       position: absolute;
       z-index: 1;
@@ -447,15 +461,15 @@ export default {
     .chart-tab {
       position: relative;
       z-index: 2;
-      height: 60px;
+      height: 3.5rem;
       display: flex;
       align-items: center;
       .tab-item {
-        margin-left: 20px;
-        font-size: 16px;
+        margin-left: 1.5rem;
+        font-size: 1.3rem;
         color: #333333;
-        border-radius: 20px;
-        padding: 4px 10px;
+        border-radius: 1.5rem;
+        padding: 0.4rem 0.8rem;
       }
       .tab-active {
         background-color: #fbd100;
@@ -463,43 +477,42 @@ export default {
     }
   }
   .table-wrap {
-    width: 1230px;
+    width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
     .table-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      height: 80px;
+      padding: 0 1.8rem;
+      height: 5rem;
       .right {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 16px;
         color: #333333;
         .item {
-          margin-left: 20px;
+          margin-left: 1.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 1.3rem;
           .input-wrap {
-            border: 1px solid #dcdfe6;
-            border-radius: 10px;
-            height: 40px;
+            border: 0.1rem solid #dcdfe6;
+            border-radius: 0.8rem;
+            height: 2.5rem;
             display: flex;
             align-items: center;
-            padding: 0 10px;
+            padding: 0 0.8rem;
             input {
               height: 100%;
               border: none;
               outline: 0;
-              width: 150px;
+              width: 9rem;
             }
             img {
-              width: 20px;
+              width: 1.5rem;
             }
           }
         }
@@ -509,17 +522,17 @@ export default {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        font-size: 16px;
+        font-size: 1.3rem;
         color: #333333;
       }
       .el-input__inner {
         justify-content: space-between !important;
-        border-radius: 10px !important;
+        border-radius: 0.8rem !important;
       }
     }
   }
   .page-wrap {
-    margin-top: 30px;
+    margin-top: 1.8rem;
   }
 }
 ::v-deep .el-pagination.is-background li:not(.disabled).active {
@@ -529,8 +542,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

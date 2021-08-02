@@ -1,43 +1,50 @@
 <template>
   <div class="rank-wrap">
-    <div class="main">
-      <div class="header">
-        <div class="title">
-          {{
-          current == 1
-          ? "当前验证人"
-          : current == 2
-          ? "候选验证人"
-          : ""
-          }}
+    <div class="main-box">
+      <div class="main">
+        <div class="header">
+          <div class="title">
+            {{
+            current == 1
+            ? $t('home.currentValidators')
+            : current == 2
+            ? $t('home.waitingValidators')
+            : ""
+            }}
+          </div>
+          <div class="text" v-if="current == 3">区块#2387293(20)</div>
         </div>
-        <div class="text" v-if="current == 3">区块#2387293(20)</div>
-      </div>
-      <div class="table-box">
-        <Table
-          :tableColumn="
+        <div class="table-box">
+          <Table
+            :tableColumn="
             current == 1
               ? tableColumn1
               : current == 2
               ? tableColumn2
               : ''
           "
-          :tableData="tableData"
-          :trColor="'#F1F0EE'"
-          :pageData="pageData"
-        ></Table>
+            :tableData="tableData"
+            :trColor="'#F1F0EE'"
+            :pageData="pageData"
+          ></Table>
+        </div>
       </div>
-    </div>
-    <div class="page-wrap">
-      <el-pagination
-        :disabled="loading"
-        background
-        :page-size="pageData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageData.total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-      ></el-pagination>
+      <div class="page-wrap">
+        <el-pagination
+          :disabled="loading"
+          background
+          :page-size="pageData.pageSize"
+          :layout="
+          $store.state.bodyDirection == 1
+            ? 'prev, pager, next'
+            : 'total, sizes, prev, pager, next, jumper'
+        "
+          :pager-count="$store.state.bodyDirection == 1 ? 5 : 7"
+          :total="pageData.total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -58,101 +65,112 @@ export default {
       },
       tableColumn1: [
         {
-          title: "排名",
+          title: this.$t("home.rank"),
           key: "order",
           headColor: "#333",
           color: "#333",
-          width: 80
+          minWidth: 6
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#4765C0",
           headColor: "#333",
           path: "/verifierDetail",
-          query: ["accountAddress", { current: 1 }]
+          query: ["accountAddress", { current: 1 }],
+          minWidth: 12
         },
         {
-          title: "验证人有效质押量",
+          title: this.$t("home.validatorStake"),
           key: "ownerActivePledge",
           color: "#333",
           headColor: "#333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 12
         },
         {
-          title: "质押总量",
+          title: this.$t("home.totalPledge"),
           key: "pledgeTotal",
           color: "#333",
           headColor: "#333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "全网冻结",
+          title: this.$t("home.totalBonded"),
           key: "allFrozen",
           color: "#333",
           headColor: "#333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "提名人",
+          title: this.$t("home.nominators"),
           key: "countNominators",
           color: "#4765C0",
           headColor: "#333",
           path: "/nominatorsList",
-          query: ["accountAddress", "accountDisplay"]
+          query: ["accountAddress", "accountDisplay"],
+          minWidth: 6
         },
         {
-          title: "担保费率",
+          title: this.$t("home.guaranteeFee"),
           key: "guaranteeFee",
           color: "#333",
           headColor: "#333",
-          unit: "%"
+          unit: "%",
+          minWidth: 6
         }
       ],
       tableColumn2: [
         {
-          title: "排名",
+          title: this.$t("home.rank"),
           key: "order",
           headColor: "#333",
           color: "#333",
-          width: 80
+          minWidth: 6
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#4765C0",
           headColor: "#333",
           path: "/verifierDetail",
-          query: ["accountAddress", { current: 2 }]
+          query: ["accountAddress", { current: 2 }],
+          minWidth: 12
         },
         {
-          title: "验证人冻结",
+          title: this.$t("home.verifierFreeze"),
           key: "bondedOwner",
           color: "#333",
           headColor: "#333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "全网冻结",
+          title: this.$t("home.totalBonded"),
           key: "allFrozen",
           color: "#333",
           headColor: "#333",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 12
         },
         {
-          title: "提名人",
+          title: this.$t("home.nominators"),
           key: "countNominators",
           color: "#4765C0",
           headColor: "#333",
           path: "/nominatorsList",
-          query: ["accountAddress", "accountDisplay"]
+          query: ["accountAddress", "accountDisplay"],
+          minWidth: 6
         },
         {
-          title: "担保费率",
+          title: this.$t("home.guaranteeFee"),
           key: "guaranteeFee",
           color: "#333",
           headColor: "#333",
-          unit: "%"
+          unit: "%",
+          minWidth: 6
         }
       ],
       tableData: []
@@ -161,6 +179,26 @@ export default {
   created() {
     this.current = this.$route.query.current || 1;
     this.getList();
+  },
+  watch: {
+    "$i18n.locale": {
+      handler: function() {
+        this.tableColumn1[0].title = this.$t("home.rank");
+        this.tableColumn1[1].title = this.$t("home.validators");
+        this.tableColumn1[2].title = this.$t("home.validatorStake");
+        this.tableColumn1[3].title = this.$t("home.totalPledge");
+        this.tableColumn1[4].title = this.$t("home.totalBonded");
+        this.tableColumn1[5].title = this.$t("home.nominators");
+        this.tableColumn1[6].title = this.$t("home.guaranteeFee");
+
+        this.tableColumn2[0].title = this.$t("home.rank");
+        this.tableColumn2[1].title = this.$t("home.validators");
+        this.tableColumn2[2].title = this.$t("home.verifierFreeze");
+        this.tableColumn2[3].title = this.$t("home.totalBonded");
+        this.tableColumn1[4].title = this.$t("home.nominators");
+        this.tableColumn2[5].title = this.$t("home.guaranteeFee");
+      }
+    }
   },
   methods: {
     getList() {
@@ -191,14 +229,14 @@ export default {
 <style lang="scss" scoped>
 .rank-wrap {
   width: 100%;
-  padding: 40px 0;
+  padding: 2.5rem 0;
   height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   .main {
-    width: 1230px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -207,20 +245,20 @@ export default {
       width: 100%;
 
       .title {
-        font-size: 35px;
+        font-size: 2rem;
         font-weight: bold;
       }
       .text {
-        font-size: 22px;
+        font-size: 1.5rem;
         color: #9a9a9a;
-        margin-top: 10px;
+        margin-top: 0.8rem;
       }
     }
     .table-box {
       width: 100%;
-      margin: 30px 0 50px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+      margin: 1.8rem 0 3rem;
+      border-radius: 0.8rem;
+      box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1);
     }
   }
 }
@@ -231,8 +269,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

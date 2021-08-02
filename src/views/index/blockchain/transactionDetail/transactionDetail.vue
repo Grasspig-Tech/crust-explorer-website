@@ -1,40 +1,37 @@
 <template>
   <div class="block-wrap">
-    <div class="block-detail-box" v-loading="loading1">
-      <div class="detail-head">
-        <div class="text">
-          交易 # {{ $route.query.extrinsicIndex || $route.query.blockNum }}
-        </div>
-      </div>
-      <div class="detail-main" v-if="ifEmpty">
-        <div class="empty">暂无数据</div>
-      </div>
-      <div class="detail-main" v-else>
-        <div class="row" v-for="(item, key, index) in detail" :key="index">
-          <div class="title">{{ item.label }}</div>
+    <div class="main-box">
+      <div class="block-detail-box" v-loading="loading1">
+        <div class="detail-head">
           <div
-            class="content"
-            :class="item.path ? 'click' : ''"
-            @click="goPath(item, key)"
-          >
-            <div class="icon-wrap">
-              <img
-                v-if="item.valueType == 0 && key == 'result'"
-                :src="require('@/assets/imgs/shibai.png')"
-              />
-              <img
-                v-if="item.valueType == 1 && key == 'result'"
-                :src="require('@/assets/imgs/chenggong_ju.png')"
-              />
-              <img
-                v-if="item.valueType == 0 && key == 'finalized'"
-                :src="require('@/assets/imgs/dengdai.png')"
-              />
-              <img
-                v-if="item.valueType == 1 && key == 'finalized'"
-                :src="require('@/assets/imgs/chenggong.png')"
-              />
-              <!-- <img
+            class="text"
+          >{{$t('home.extrinsics')}} # {{ $route.query.extrinsicIndex || $route.query.blockNum }}</div>
+        </div>
+        <div class="detail-main" v-if="ifEmpty">
+          <div class="empty">{{$t('home.empty')}}</div>
+        </div>
+        <div class="detail-main" v-else>
+          <div class="row" v-for="(item, key, index) in detail" :key="index">
+            <div class="title">{{ item.label }}</div>
+            <div class="content" :class="item.path ? 'click' : ''" @click="goPath(item, key)">
+              <div class="icon-wrap">
+                <img
+                  v-if="item.valueType == 0 && key == 'result'"
+                  :src="require('@/assets/imgs/shibai.png')"
+                />
+                <img
+                  v-if="item.valueType == 1 && key == 'result'"
+                  :src="require('@/assets/imgs/chenggong_ju.png')"
+                />
+                <img
+                  v-if="item.valueType == 0 && key == 'finalized'"
+                  :src="require('@/assets/imgs/dengdai.png')"
+                />
+                <img
+                  v-if="item.valueType == 1 && key == 'finalized'"
+                  :src="require('@/assets/imgs/chenggong.png')"
+                />
+                <!-- <img
                 v-if="!item.verify && key == 'accountId'"
                 :src="require('@/assets/imgs/weiyanzheng.png')"
               />
@@ -44,62 +41,62 @@
               />
               <div class="float" v-if="key == 'accountId'">
                 <span>
-                  {{ item.verify ? "身份等级：一般" : "身份等级：未验证" }}
+                  {{ item.verify ? $t('home.identity1') : this.$t('home.identity2') }}
                 </span>
               </div>
-              <div class="arrow" v-if="key == 'accountId'"></div> -->
+                <div class="arrow" v-if="key == 'accountId'"></div>-->
+              </div>
+              <span class="value break-word" v-if="key == 'date'">
+                {{
+                $utils.toUTCtime(item.value)
+                }}
+              </span>
+              <span class="value break-word" v-else>
+                <span v-if="item.value1">{{ item.value1 }}</span>
+                <span>{{ item.value == null ? "-" : item.value }}</span>
+              </span>
             </div>
-            <span class="value break-word" v-if="key == 'date'">{{
-              $utils.toUTCtime(item.value)
-            }}</span>
-            <span class="value break-word" v-else>
-              <span v-if="item.value1">{{ item.value1 }}</span>
-              <span>{{ item.value == null ? "-" : item.value }}</span>
-            </span>
-          </div>
-          <div class="copy-wrap">
-            <div
-              class="copy click"
-              @click="$utils.copy(item.value)"
-              v-if="item.copy"
-            >
-              <img :src="require('@/assets/imgs/fuzhi.png')" />
-              <span class="text">复制</span>
+            <div class="copy-wrap">
+              <div class="copy click" @click="$utils.copy(item.value)" v-if="item.copy">
+                <img :src="require('@/assets/imgs/fuzhi.png')" />
+                <span class="text" v-if="$store.state.bodyDirection == 0">{{$t('home.copy')}}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="table-wrap-box">
-      <div class="table-head">
-        <div class="left">
-          <!-- <div class="tab-item">事件({{ pageData.total }})</div> -->
-          <div class="tab-item">事件({{ tableData.length }})</div>
-        </div>
-        <!-- <div class="right" v-if="!ifEmpty">
+      <div class="table-wrap-box">
+        <div class="table-head">
+          <div class="left">
+            <!-- <div class="tab-item">事件({{ pageData.total }})</div> -->
+            <div class="tab-item">{{$t('home.event')}}({{ tableData.length }})</div>
+          </div>
+          <!-- <div class="right" v-if="!ifEmpty">
           <span>全部</span>
           <img :src="require('@/assets/imgs/more_hui.png')" alt />
-        </div>-->
+          </div>-->
+        </div>
+        <div class="table-box">
+          <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
+        </div>
       </div>
-      <div class="table-box">
-        <Table
-          :tableColumn="tableColumn"
-          :tableData="tableData"
-          :trColor="'#F1F0EE'"
-        ></Table>
-      </div>
-    </div>
-    <!-- <div class="page-wrap">
+      <!-- <div class="page-wrap">
       <el-pagination
         :disabled="loading"
         background
         :page-size="pageData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
+         :layout="
+            $store.state.bodyDirection == 1
+              ? 'prev, pager, next'
+              : 'total, sizes, prev, pager, next, jumper'
+          "
+          :pager-count="$store.state.bodyDirection == 1 ? 5 : 7"
         :total="pageData.total"
         @current-change="handleCurrentChange"
         @size-change="handleSizeChange"
       ></el-pagination>
-    </div>-->
+      </div>-->
+    </div>
   </div>
 </template>
 
@@ -118,75 +115,79 @@ export default {
       accountDisplay: {},
       detail: {
         date: {
-          label: "时间",
-          value: "",
+          label: this.$t("home.time"),
+          value: ""
         },
         finalized: {
-          label: "块状态",
+          label: this.$t("home.status"),
           value: "",
           valueType: "",
-          icons: [],
+          icons: []
         },
         extrinsicHash: {
-          label: "交易哈希",
+          label: this.$t("home.extrinsicHash"),
           value: "",
-          copy: true,
+          copy: true
         },
         accountId: {
-          label: "发送账户",
+          label: this.$t("home.sendingAccount"),
           value: "",
           value1: "",
           copy: true,
           verify: true,
           path: "/accountDetail",
-          query: ["accountAddress"],
+          query: ["accountAddress"]
         },
         result: {
-          label: "结果",
+          label: this.$t("home.results"),
           value: "",
           valueType: "",
-          icons: [],
+          icons: []
         },
         signature: {
-          label: "签名",
-          value: "",
-        },
+          label: this.$t("home.sign"),
+          value: ""
+        }
       },
       tableColumn: [
         {
-          title: "事件id",
+          title: this.$t("home.eventIndex"),
           key: "eventIndex",
           headColor: "#333333",
           color: "#333",
+          minWidth: 8
         },
         {
-          title: "区块",
+          title: this.$t("home.block"),
           key: "blockNum",
           color: "#333",
           headColor: "#333333",
+          minWidth: 8
         },
         {
-          title: "哈希",
+          title: this.$t("home.extrinsicHash"),
           key: "extrinsicHash",
           color: "#4765C0",
           headColor: "#333333",
           copy: true,
           path: "/transactionDetail",
           query: ["blockNum", "extrinsicIndex", "extrinsicHash"],
+          minWidth: 12
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#333",
           headColor: "#333333",
-        },
+          minWidth: 10
+        }
       ],
       tableData: [],
       pageData: {
         pageSize: 10,
         page: 1,
-        total: 0,
-      },
+        total: 0
+      }
     };
   },
   created() {
@@ -198,14 +199,29 @@ export default {
       this.loading1 = true;
       this.getDetail();
     },
+    "$i18n.locale": {
+      handler: function() {
+        this.detail.date.label = this.$t("home.extrinsicRecord");
+        this.detail.finalized.label = this.$t("home.status");
+        this.detail.extrinsicHash.label = this.$t("home.extrinsicHash");
+        this.detail.accountId.label = this.$t("home.sendingAccount");
+        this.detail.result.label = this.$t("home.results");
+        this.detail.signature.label = this.$t("home.sign");
+
+        this.tableColumn[0].title = this.$t("home.eventIndex");
+        this.tableColumn[1].title = this.$t("home.block");
+        this.tableColumn[2].title = this.$t("home.extrinsicHash");
+        this.tableColumn[3].title = this.$t("home.time");
+      }
+    }
   },
   methods: {
     getList() {
       this.loading = true;
       getBlockEventApi({
         blockNum: this.$route.query.blockNum,
-        ...this.pageData,
-      }).then((res) => {
+        ...this.pageData
+      }).then(res => {
         if (res.code == 200) {
           this.tableData = res.data.records;
           this.pageData.total = res.data.total;
@@ -221,7 +237,7 @@ export default {
         params.extrinsicIndex = this.$route.query.extrinsicIndex;
       if (this.$route.query.extrinsicHash != "undefined")
         params.extrinsicHash = this.$route.query.extrinsicHash;
-      getExtrinsicDetailApi(params).then((res) => {
+      getExtrinsicDetailApi(params).then(res => {
         if (res.code == 200) {
           if (res.data) {
             this.ifEmpty = false;
@@ -266,7 +282,7 @@ export default {
         fullPath = item.path + "?";
       if (this.$router.currentRoute.path != item.path) {
         if (item.query.length > 0) {
-          item.query.map((r) => {
+          item.query.map(r => {
             fullPath += `${r}=${item.value}`;
           });
           if (lastFullPath != fullPath) this.$router.push(fullPath);
@@ -274,8 +290,8 @@ export default {
           this.$router.push(item.path);
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -286,51 +302,50 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 0 50px;
+  padding: 1.5rem 0 3rem;
   .block-detail-box {
-    width: 1230px;
-    border-radius: 10px;
+    width: 100%;
+    border-radius: 0.8rem;
     background-color: #fff;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+    padding-top: 1.5rem;
     .detail-head {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 250px;
-      height: 40px;
+      width: 16rem;
+      height: 2.5rem;
       background-color: #f7f7f9;
-      border-radius: 10px;
+      border-radius: 0.8rem;
       .text {
         flex: 1;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 1.3rem;
         color: #333333;
         font-weight: bold;
       }
     }
     .detail-main {
       width: 100%;
-      padding-top: 20px;
+      padding-top: 1.5rem;
       .empty {
-        margin: 40px 0 60px;
+        margin: 2.5rem 0 3.5rem;
       }
       .row {
-        min-height: 40px;
-        padding: 10px 0;
+        padding: 0.8rem 1rem;
         line-height: 1.6;
-        border-bottom: 1px solid #eee;
+        border-bottom: 0.1rem solid #eee;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 14px;
+        font-size: 1.1rem;
         color: #333;
         .title {
           flex: 1;
@@ -353,7 +368,7 @@ export default {
             }
           }
           .icon-wrap {
-            margin-right: 10px;
+            margin-right: 0.8rem;
             display: flex;
             align-items: center;
             position: relative;
@@ -371,27 +386,27 @@ export default {
               left: calc(100%);
               width: 0;
               height: 0;
-              border-top: 6px solid transparent;
-              border-right: 10px solid #fff;
-              border-bottom: 6px solid transparent;
+              border-top: 0.5rem solid transparent;
+              border-right: 0.6rem solid #fff;
+              border-bottom: 0.5rem solid transparent;
             }
             .float {
-              left: calc(100% + 10px);
-              height: 40px;
-              padding: 20px;
+              left: calc(100% + 0.6rem);
+              height: 2.5rem;
+              padding: 1.5rem;
               white-space: nowrap;
               display: flex;
               align-items: center;
               justify-content: center;
-              border-radius: 10px;
+              border-radius: 0.8rem;
               background-color: #fff;
               color: #333;
-              font-size: 14px;
-              box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+              font-size: 0.9rem;
+              box-shadow: 0 0 0.8rem 0.2rem rgba(0, 0, 0, 0.1);
             }
             img {
-              width: 18px;
-              margin-right: 6px;
+              width: 1.1rem;
+              margin-right: 0.5rem;
             }
           }
         }
@@ -399,20 +414,18 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 160px;
           .copy {
-            border: 1px solid #e8a134;
+            border: 0.1rem solid #e8a134;
             color: #e8a134;
-            border-radius: 90px;
-            width: 70px;
-            height: 30px;
-            font-size: 14px;
+            border-radius: 10rem;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
             img {
-              width: 12px;
-              margin-right: 4px;
+              width: 0.8rem;
+              margin-right: 0.3rem;
             }
           }
         }
@@ -421,30 +434,30 @@ export default {
   }
   .table-wrap-box {
     overflow: hidden;
-    width: 1230px;
+    width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.5rem 0.2rem rgba(0, 0, 0, 0.1);
     .table-head {
       background-color: #f8f8f8;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      padding-top: 10px;
+      padding: 0 1.8rem;
+      padding-top: 0.8rem;
       .left {
         display: flex;
         align-items: center;
         .tab-item {
-          padding: 0 40px;
+          padding: 0 2.5rem;
           width: auto;
-          height: 60px;
+          height: 3.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 10px 10px 0 0;
-          font-size: 16px;
+          border-radius: 0.8rem 0.8rem 0 0;
+          font-size: 1.2rem;
           font-weight: bold;
         }
         .active {
@@ -455,11 +468,11 @@ export default {
       .right {
         span {
           color: #bcbcbc;
-          font-size: 16px;
+          font-size: 1rem;
         }
         img {
-          width: 12px;
-          margin-left: 10px;
+          width: 0.8rem;
+          margin-left: 0.8rem;
         }
       }
     }
@@ -469,7 +482,7 @@ export default {
   }
 
   .page-wrap {
-    margin-top: 30px;
+    margin-top: 1.8rem;
   }
 }
 ::v-deep .el-pagination.is-background li:not(.disabled).active {
@@ -479,8 +492,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

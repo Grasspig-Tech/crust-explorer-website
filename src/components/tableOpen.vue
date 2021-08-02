@@ -1,5 +1,5 @@
 <template>
-  <div class="table-wrap">
+  <div class="table-wrap" :class="$store.state.bodyDirection == 1 ? 'scrollx' : ''">
     <div class="table" v-loading="$parent.loading">
       <div class="tr">
         <div
@@ -7,7 +7,8 @@
           v-for="(th, index) in thisTableColumn"
           :key="index"
           :class="th.width ? '' : 'flex'"
-          :style="{ color: th.headColor, width: th.width + 'px' }"
+          :style="{ color: th.headColor, 'min-width':
+              $store.state.bodyDirection == 1 ? th.minWidth + 'rem' : 0, }"
         >{{ th.title }}</div>
         <div class="th"></div>
       </div>
@@ -21,8 +22,9 @@
             :style="{
               'background-color': i % 2 == 0 ? trColor : trColor1,
               color: th.color,
-              height: tdHeight + 'px',
-              width: th.width + 'px',
+              height: tdHeight + 'rem',
+              'min-width':
+              $store.state.bodyDirection == 1 ? th.minWidth + 'rem' : 0,
             }"
           >
             <div class="one-line">
@@ -53,15 +55,15 @@
       </div>
       <div
         class="loading"
-        :style="{ height: (tdHeight * (thisTableData.length || 10) + 50) + 'px' }"
+        :style="{ height: tdHeight * (thisTableData.length || 10) + 3 + 'rem' }"
         v-if="$parent.loading"
       ></div>
       <div
         class="empty"
-        :style="{ height: (tdHeight * (thisTableData.length || 10) + 50) + 'px' }"
-        v-if="!$parent.loading && tableData.length == 0"
+        :style="{ height: tdHeight * (thisTableData.length || 10) + 3 + 'rem' }"
+        v-if="!$parent.loading && thisTableData.length == 0"
       >
-        <span>暂无数据</span>
+        <span>{{$t('home.empty')}}</span>
       </div>
     </div>
   </div>
@@ -77,7 +79,7 @@ export default {
     trColor1: { type: String },
     openBg: { type: String },
     openColor: { type: String },
-    tdHeight: { type: Number, default: 40 }
+    tdHeight: { type: Number, default: 3 }
   },
   data() {
     return {
@@ -130,37 +132,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.scrollx {
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
 .table-wrap {
   width: 100%;
-  height: 100%;
+  background-color: red;
   .table {
-    width: 100%;
-    height: 100%;
+    width: auto;
     .loading {
-      height: 400px;
-      width: 100%;
+      width: auto;
     }
     .empty {
-      height: 400px;
-      width: 100%;
+      width: auto;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .tr.open {
-      height: 80px;
+      height: 5rem;
     }
     .tr {
-      width: 100%;
+      width: auto;
       display: flex;
       justify-content: space-between;
       position: relative;
       .open-tr {
         position: absolute;
         width: 100%;
-        top: 40px;
+        top: 2.5rem;
         > div {
-          height: 40px;
+          height: 2.5rem;
           flex: 1;
           display: flex;
           align-items: center;
@@ -176,26 +179,26 @@ export default {
         flex: 1;
       }
       .th {
-        height: 50px;
-        min-width: 60px;
+        flex: 1;
+        height: 4rem;
+        font-size: 1.2rem;
       }
       .td {
-        height: 40px;
-        font-size: 12px;
+        font-size: 1.1rem;
         overflow: hidden;
-        min-width: 60px;
+        min-width: 3.5rem;
         .img-wrap {
           height: 100%;
-          width: 40px;
+          width: 2.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
           img {
-            width: 14px;
+            width: 0.8rem;
           }
         }
         .unit {
-          margin-left: 4px;
+          margin-left: 0.3rem;
         }
       }
     }

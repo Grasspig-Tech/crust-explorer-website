@@ -1,23 +1,30 @@
 <template>
   <div class="wrap">
-    <div class="main">
-      <div class="header">
-        <span>推荐节点排行榜</span>
+    <div class="main-box">
+      <div class="main">
+        <div class="header">
+          <span>推荐节点排行榜</span>
+        </div>
+        <div class="table-wrap">
+          <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
+        </div>
       </div>
-      <div class="table-wrap">
-        <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#F1F0EE'"></Table>
+      <div class="page-wrap">
+        <el-pagination
+          :disabled="loading"
+          background
+          :page-size="pageData.pageSize"
+          :layout="
+          $store.state.bodyDirection == 1
+            ? 'prev, pager, next'
+            : 'total, sizes, prev, pager, next, jumper'
+        "
+          :pager-count="$store.state.bodyDirection == 1 ? 5 : 7"
+          :total="pageData.total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        ></el-pagination>
       </div>
-    </div>
-    <div class="page-wrap">
-      <el-pagination
-        :disabled="loading"
-        background
-        :page-size="pageData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageData.total"
-        @current-change="handleCurrentChange"
-        @size-change="handleSizeChange"
-      ></el-pagination>
     </div>
   </div>
 </template>
@@ -28,7 +35,7 @@ export default {
   components: { Table },
   data() {
     return {
-      loading: true,
+      loading: false,
       pageData: {
         pageSize: 10,
         pageCount: 1,
@@ -39,31 +46,36 @@ export default {
           title: "节点",
           key: "node",
           headColor: "#333",
-          color: "#333"
+          color: "#333",
+          minWidth: 8
         },
         {
           title: "连接数量",
           key: "connectNum",
           color: "#333",
-          headColor: "#333"
+          headColor: "#333",
+          minWidth: 6
         },
         {
           title: "交易数量",
           key: "tradeNum",
           color: "#333",
-          headColor: "#333"
+          headColor: "#333",
+          minWidth: 6
         },
         {
           title: "区块高度",
           key: "height",
           color: "#333",
-          headColor: "#333"
+          headColor: "#333",
+          minWidth: 8
         },
         {
           title: "区块时间",
           key: "time",
           color: "#333",
-          headColor: "#333"
+          headColor: "#333",
+          minWidth: 10
         }
       ],
       tableData: [
@@ -166,34 +178,34 @@ export default {
 .wrap {
   width: 100%;
   height: auto;
-  padding: 60px 0;
+  padding: 3rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   .main {
-    width: 1230px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     .header {
       width: 100%;
-      margin-bottom: 30px;
+      margin-bottom: 2.5rem;
       span {
-        font-size: 35px;
+        font-size: 2rem;
         color: #333;
         font-weight: bold;
       }
     }
     .table-wrap {
       width: 100%;
-      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
+      box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1);
+      border-radius: 0.8rem;
     }
   }
   .page-wrap {
-    margin-top: 30px;
+    margin-top: 1.8rem;
   }
 }
 ::v-deep .el-pagination.is-background li:not(.disabled).active {
@@ -203,8 +215,8 @@ export default {
 ::v-deep .is-background li,
 ::v-deep .is-background .btn-prev,
 ::v-deep .is-background .btn-next {
-  border-radius: 10px !important;
+  border-radius: 0.8rem !important;
   background-color: #fff !important;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 0.8rem 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>

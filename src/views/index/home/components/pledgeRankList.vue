@@ -1,15 +1,23 @@
 <template>
   <div class="rank-wrap">
-    <div class="main">
+    <div class="main main-box">
       <div class="header">
         <div class="click" @click="$router.push(`/pledgeRankList?current=${current}`)">
-          <span>质押排行榜</span>
+          <span>{{$t('home.stakeRank')}}</span>
           <img :src="require('@/assets/imgs/more.png')" alt="更多" />
         </div>
       </div>
       <div class="tab-wrap">
-        <div class="tab-item click" :class="current == 1 ? 'active' : ''" @click="changeTab(1)">质押额度</div>
-        <div class="tab-item click" :class="current == 2 ? 'active' : ''" @click="changeTab(2)">有效质押</div>
+        <div
+          class="tab-item click"
+          :class="current == 1 ? 'active' : ''"
+          @click="changeTab(1)"
+        >{{$t('home.stakeAmount')}}</div>
+        <div
+          class="tab-item click"
+          :class="current == 2 ? 'active' : ''"
+          @click="changeTab(2)"
+        >{{$t('home.effectIvestake')}}</div>
       </div>
       <div class="table-wrap">
         <Table
@@ -38,85 +46,112 @@ export default {
       current: 1,
       tableColumn1: [
         {
-          title: "排名",
+          title: this.$t("home.rank"),
           key: "order",
           headColor: "#fff",
           color: "#fff",
-          showImg: true
+          showImg: true,
+          minWidth: 6
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#F9D007",
           headColor: "#fff",
           path: "/verifierDetail",
-          query: ["accountAddress"]
+          query: ["accountAddress"],
+          minWidth: 12
         },
         {
-          title: "自身有效质押",
+          title: this.$t("home.ownEffectiveStake"),
           key: "ownerActivePledge",
           color: "#fff",
           headColor: "#fff",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "质押上限",
+          title: this.$t("home.stakeLimit"),
           key: "pledgeMax",
           color: "#fff",
           headColor: "#fff",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "质押总量",
+          title: this.$t("home.totalPledge"),
           key: "pledgeTotal",
           color: "#fff",
           headColor: "#fff",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "担保费率",
+          title: this.$t("home.guaranteeFee"),
           key: "guaranteeFee",
           color: "#fff",
           headColor: "#fff",
-          unit: "%"
+          unit: "%",
+          minWidth: 6
         }
       ],
       tableColumn2: [
         {
-          title: "排名",
+          title: this.$t("home.rank"),
           key: "order",
           color: "#fff",
           headColor: "#fff",
-          showImg: true
+          showImg: true,
+          minWidth: 6
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#F9D007",
           headColor: "#fff",
           path: "/verifierDetail",
-          query: ["accountAddress"]
+          query: ["accountAddress"],
+          minWidth: 12
         },
         {
-          title: "自身有效质押",
+          title: this.$t("home.ownEffectiveStake"),
           key: "ownerActivePledge",
           color: "#fff",
           headColor: "#fff",
-          unit: "CRU"
+          unit: "CRU",
+          minWidth: 10
         },
         {
-          title: "担保费率",
+          title: this.$t("home.guaranteeFee"),
           key: "guaranteeFee",
           color: "#fff",
           headColor: "#fff",
-          unit: "%"
-        },
+          unit: "%",
+          minWidth: 6
+        }
       ],
       tableData: []
     };
   },
   created() {
     this.getList();
+  },
+  watch: {
+    "$i18n.locale": {
+      handler: function() {
+        this.tableColumn1[0].title = this.$t("home.rank");
+        this.tableColumn1[1].title = this.$t("home.validators");
+        this.tableColumn1[2].title = this.$t("home.ownEffectiveStake");
+        this.tableColumn1[3].title = this.$t("home.stakeLimit");
+        this.tableColumn1[4].title = this.$t("home.totalPledge");
+        this.tableColumn1[5].title = this.$t("home.guaranteeFee");
+
+        this.tableColumn2[0].title = this.$t("home.rank");
+        this.tableColumn2[1].title = this.$t("home.validators");
+        this.tableColumn2[2].title = this.$t("home.ownEffectiveStake");
+        this.tableColumn2[3].title = this.$t("home.guaranteeFee");
+      }
+    }
   },
   methods: {
     async getList() {
@@ -143,14 +178,13 @@ export default {
 <style lang="scss" scoped>
 .rank-wrap {
   width: 100%;
-  padding: 40px 0;
+  padding: 2rem 0;
   height: auto;
   background-color: rgba(#252738, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   .main {
-    width: 1230px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -161,27 +195,26 @@ export default {
       align-items: center;
       justify-content: center;
       span {
-        font-size: 35px;
+        font-size: 2rem;
         color: #fff;
-        margin-right: 20px;
+        margin-right: 1.5rem;
       }
       img {
-        width: 20px;
+        width: 1.5rem;
       }
     }
     .tab-wrap {
-      margin: 30px 0;
+      margin: 1.5rem 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #f9d007;
-      width: 200px;
-      height: 30px;
-      border-radius: 90px;
+      border: 0.1rem solid #f9d007;
+      height: 2.5rem;
+      border-radius: 10rem;
       overflow: hidden;
       .tab-item {
-        flex: 1;
-        font-size: 14px;
+        padding: 0 1rem;
+        font-size: 1.2rem;
         display: flex;
         align-items: center;
         justify-content: center;

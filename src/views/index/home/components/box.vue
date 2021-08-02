@@ -1,22 +1,44 @@
 <template>
   <div class="data-wrap">
-    <div class="bottom-wrap">
-      <div class="pledge-wrap">
-        <div class="title click" @click="goPath('/effectivePledge',2,0)">
-          <span>有效质押分布</span>
-          <img :src="require('@/assets/imgs/more.png')" alt="更多" />
+    <div
+      class="bottom-wrap main-box"
+      :style="{
+        'flex-direction': $store.state.bodyDirection == 0 ? 'row' : 'column',
+      }"
+    >
+      <div
+        class="pledge-wrap"
+        :style="{
+          width: $store.state.bodyDirection == 0 ? '45%' : '100%',
+          'margin-bottom': $store.state.bodyDirection == 1 ? '2rem' : '0',
+        }"
+      >
+        <div class="title click" @click="goPath('/effectivePledge', 2, 0)">
+          <span>{{$t('home.effectiveStakeDistribution')}}</span>
+          <img :src="require('@/assets/imgs/more.png')" />
         </div>
-        <div class="content">
+        <div
+          class="content"
+          :style="{
+            height: $store.state.bodyDirection == 1 ? '30rem' : '100%',
+          }"
+          v-loading="loading1"
+        >
           <Chart :option="option"></Chart>
         </div>
       </div>
-      <div class="block-wrap">
-        <div class="title click" @click="goPath('/blockList',1,0)">
-          <span>最新区块</span>
-          <img :src="require('@/assets/imgs/more.png')" alt="更多" />
+      <div class="block-wrap" :style="{ width: $store.state.bodyDirection == 0 ? '54%' : '100%' }">
+        <div class="title click" @click="goPath('/blockList', 1, 0)">
+          <span>{{$t('home.latestBlocks')}}</span>
+          <img :src="require('@/assets/imgs/more.png')" />
         </div>
         <div class="content">
-          <Table :tableColumn="tableColumn" :tableData="tableData" :trColor="'#2f3346'"></Table>
+          <Table
+            :tableColumn="tableColumn"
+            :tableData="tableData"
+            :trColor="'#2f3346'"
+            :isHome="true"
+          ></Table>
         </div>
       </div>
     </div>
@@ -36,6 +58,7 @@ export default {
     return {
       newDataList: [],
       loading: true,
+      loading1: true,
       option: {
         tooltip: {
           trigger: "item",
@@ -50,7 +73,7 @@ export default {
         },
         series: [
           {
-            name: "有效质押",
+            name: this.$t("home.effectIvestake"),
             type: "pie",
             radius: "50%",
             data: [],
@@ -68,63 +91,64 @@ export default {
       },
       tableColumn: [
         {
-          title: "区块高度",
+          title: this.$t("home.blocks"),
           key: "blockNum",
           headColor: "#fff",
           color: "#F9D007",
-          width: 80,
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 6
         },
         {
-          title: "状态",
+          title: this.$t("home.status"),
           key: "finalized",
           color: "#fff",
           headColor: "#fff",
           type: "status",
-          width: 60
+          minWidth: 5
         },
         {
-          title: "时间",
+          title: this.$t("home.time"),
           key: "blockTimestamp",
           color: "#fff",
           headColor: "#fff",
-          width: 90
+          minWidth: 8
         },
         {
-          title: "交易",
+          title: this.$t("home.extrinsics"),
           key: "extrinsicsCount",
           color: "#F9D007",
           headColor: "#fff",
-          width: 50,
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 5
         },
         {
-          title: "事件",
+          title: this.$t("home.event"),
           key: "eventCount",
           color: "#F9D007",
           headColor: "#fff",
-          width: 50,
           path: "/blockDetail",
-          query: ["blockNum", { current: 2 }]
+          query: ["blockNum", { current: 2 }],
+          minWidth: 5
         },
         {
-          title: "验证人",
+          title: this.$t("home.validators"),
           key: "accountDisplay",
           color: "#F9D007",
           headColor: "#fff",
-          type: "img",
           path: "/verifierDetail",
-          query: [{ key: "accountAddress", value: "validator" }]
+          query: [{ key: "accountAddress", value: "validator" }],
+          minWidth: 12
         },
         {
-          title: "区块哈希",
+          title: this.$t("home.blockHash"),
           key: "hash",
           color: "#F9D007",
           headColor: "#fff",
           path: "/blockDetail",
-          query: ["blockNum"]
+          query: ["blockNum"],
+          minWidth: 12
         }
       ],
       tableData: []
@@ -133,6 +157,18 @@ export default {
   watch: {
     blockList(val) {
       this.tableData = [...val];
+    },
+    "$i18n.locale": {
+      handler: function() {
+        this.option.series[0].name = this.$t("home.effectIvestake");
+        this.tableColumn[0].title = this.$t("home.blocks");
+        this.tableColumn[1].title = this.$t("home.status");
+        this.tableColumn[2].title = this.$t("home.time");
+        this.tableColumn[3].title = this.$t("home.extrinsics");
+        this.tableColumn[4].title = this.$t("home.event");
+        this.tableColumn[5].title = this.$t("home.validators");
+        this.tableColumn[6].title = this.$t("home.blockHash");
+      }
     }
   },
   created() {
@@ -155,6 +191,7 @@ export default {
             });
           });
           this.option.series[0].data = arr;
+          this.loading1 = false;
         }
       });
     },
@@ -171,48 +208,52 @@ export default {
 </script>
 <style lang="scss" scoped>
 .data-wrap {
-  padding: 0 0 60px;
+  margin-bottom: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: auto;
   .bottom-wrap {
-    width: 1230px;
+    height: auto;
     display: flex;
     justify-content: space-between;
     > div {
-      border-radius: 10px;
+      border-radius: 1rem;
       background-color: rgba(#2f3346, 0.7);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       .title {
-        padding: 18px 20px 10px;
+        padding: 0 1rem;
+        height: 4rem;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
         span {
-          font-size: 22px;
+          font-size: 1.7rem;
           color: #fff;
         }
         img {
-          width: 20px;
+          width: 1.5rem;
         }
       }
       .content {
         width: 100%;
-        height: 450px;
       }
     }
     .pledge-wrap {
-      width: 520px;
+      width: 45%;
       .content {
-        padding-bottom: 40px;
+        height: 100%;
+        padding-bottom: 2.5rem;
       }
     }
     .block-wrap {
-      width: 690px;
+      width: 50%;
+      .content {
+        height: auto;
+      }
     }
   }
 }

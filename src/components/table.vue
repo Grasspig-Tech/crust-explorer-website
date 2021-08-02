@@ -1,16 +1,17 @@
 <template>
-  <div class="table-wrap">
+  <div class="table-wrap" :class="$store.state.bodyDirection == 1 ? 'scrollx' : ''">
     <div class="table" v-loading="$parent.loading">
       <div class="tr">
         <div
           class="th"
           v-for="(th, index) in thisTableColumn"
           :key="index"
-          :class="th.width ? '' : 'flex'"
-          :style="{ color: th.headColor, width: th.width + 'px' }"
-        >
-          {{ th.title }}
-        </div>
+          :style="{
+            color: th.headColor,
+            'min-width':
+              $store.state.bodyDirection == 1 ? th.minWidth + 'rem' : 0,
+          }"
+        >{{ th.title }}</div>
       </div>
       <div v-if="!$parent.loading && thisTableData.length > 0">
         <div class="tr" v-for="(td, i) in thisTableData" :key="i">
@@ -18,12 +19,13 @@
             class="td"
             v-for="(th, index) in thisTableColumn"
             :key="index"
-            :class="{ flex: !th.width, click: th.path }"
+            :class="{ click: th.path }"
             :style="{
               'background-color': i % 2 == 0 ? trColor : trColor1,
               color: th.color,
-              height: tdHeight + 'px',
-              width: th.width + 'px',
+              height: tdHeight + 'rem',
+              'min-width':
+                $store.state.bodyDirection == 1 ? th.minWidth + 'rem' : 0,
             }"
             @click="goPath(th, td)"
           >
@@ -40,22 +42,19 @@
                 <div class="float">{{ $utils.toUTCtime(td[th.key]) }}</div>
                 <div class="arrow"></div>
               </div>
-              <div
-                v-if="th.key != 'blockTimestamp' && th.key != 'accountDisplay'"
-              >
+              <div v-if="th.key != 'blockTimestamp' && th.key != 'accountDisplay'">
                 <!-- 超长字符 -->
                 <span
                   class="overText"
                   v-if="td[th.key] && td[th.key].length > 20"
-                  >{{ $utils.ellipsisText(td[th.key], 14) }}</span
-                >
+                >{{ $utils.ellipsisText(td[th.key], 14) }}</span>
                 <span v-else>
                   <!-- 操作 -->
-                  <span v-if="th.key == 'operation'"
-                    >{{ td["callModule"] || td["moduleId"] }}（{{
-                      td["callModuleFunction"] || td["eventId"]
-                    }}）</span
-                  >
+                  <span v-if="th.key == 'operation'">
+                    {{ td["callModule"] || td["moduleId"] }}（{{
+                    td["callModuleFunction"] || td["eventId"]
+                    }}）
+                  </span>
                   <span v-else>{{ keepNum(td[th.key], th.key) }}</span>
                 </span>
                 <span class="unit" v-if="th.unit">{{ th.unit }}</span>
@@ -66,15 +65,15 @@
       </div>
       <div
         class="loading"
-        :style="{ height: tdHeight * (thisTableData.length || 10) + 50 + 'px' }"
+        :style="{ height: tdHeight * (thisTableData.length || 10) + 3 + 'rem' }"
         v-if="$parent.loading"
       ></div>
       <div
         class="empty"
-        :style="{ height: tdHeight * (thisTableData.length || 10) + 50 + 'px' }"
+        :style="{ height: tdHeight * (thisTableData.length || 10) + 3 + 'rem' }"
         v-if="!$parent.loading && thisTableData.length == 0"
       >
-        <span>暂无数据</span>
+        <span>{{$t('home.empty')}}</span>
       </div>
     </div>
   </div>
@@ -87,12 +86,12 @@ export default {
     tableData: { type: Array },
     trColor: { type: String },
     trColor1: { type: String },
-    tdHeight: { type: Number, default: 40 },
+    tdHeight: { type: Number, default: 3 }
   },
   data() {
     return {
       thisTableColumn: [],
-      thisTableData: [],
+      thisTableData: []
     };
   },
   watch: {
@@ -100,14 +99,14 @@ export default {
       handler(val) {
         this.thisTableColumn = [...val];
       },
-      deep: true,
+      deep: true
     },
     tableData: {
       handler(val) {
         this.thisTableData = [...val];
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.thisTableColumn = [...this.tableColumn];
@@ -120,7 +119,7 @@ export default {
       var lastFullPath = this.$router.currentRoute.fullPath,
         fullPath = `${th.path}?`;
       if (th.query.length > 0) {
-        th.query.map((item) => {
+        th.query.map(item => {
           // 区块列表跳转区块详情列表tab
           if (item.current) {
             fullPath += `current=${item.current}&`;
@@ -160,10 +159,10 @@ export default {
     },
     keepNum(str, key) {
       var data = "";
-      this.$store.state.keepFourLength.map((item) => {
+      this.$store.state.keepFourLength.map(item => {
         if (key == item) data = Number(str).toFixed(4);
       });
-      this.$store.state.keepTwoLength.map((item) => {
+      this.$store.state.keepTwoLength.map(item => {
         if (key == item) {
           if (item == "guaranteeFee" || item == "quotient")
             data = Number(str) * 100;
@@ -172,53 +171,52 @@ export default {
       });
       if (!data) data = str;
       return data;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
+.scrollx {
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
 .table-wrap {
   width: 100%;
-  height: 100%;
   .table {
-    width: 100%;
-    height: 100%;
+    width: auto;
     .loading {
-      height: 400px;
-      width: 100%;
+      width: auto;
     }
     .empty {
-      height: 400px;
-      width: 100%;
+      width: auto;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .tr {
-      width: 100%;
+      width: auto;
       display: flex;
       justify-content: space-between;
       position: relative;
-      > div {
+      div {
         display: flex;
         align-items: center;
         justify-content: center;
       }
-      .flex {
-        flex: 1;
-      }
       .th {
-        height: 50px;
+        flex: 1;
+        height: 4rem;
+        font-size: 1.2rem;
       }
       .td {
-        height: 40px;
-        font-size: 12px;
+        flex: 1;
+        font-size: 1.1rem;
         img {
-          width: 20px;
+          width: 1.5rem;
         }
         .unit {
-          margin-left: 4px;
+          margin-left: 0.3rem;
         }
         .blockTimestamp:hover,
         .accountDisplay:hover {
@@ -245,22 +243,22 @@ export default {
             left: calc(100%);
             width: 0;
             height: 0;
-            border-top: 6px solid transparent;
-            border-right: 10px solid #fff;
-            border-bottom: 6px solid transparent;
+            border-top: 0.5rem solid transparent;
+            border-right: 0.6rem solid #fff;
+            border-bottom: 0.5rem solid transparent;
           }
           .float {
-            left: calc(100% + 10px);
-            height: 40px;
-            padding: 20px;
+            left: calc(100% + 0.6rem);
+            height: 3rem;
+            padding: 1.5rem;
             white-space: nowrap;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 0.8rem;
             background-color: #fff;
             color: #333;
-            box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0.8rem 0.2rem rgba(0, 0, 0, 0.1);
           }
         }
       }

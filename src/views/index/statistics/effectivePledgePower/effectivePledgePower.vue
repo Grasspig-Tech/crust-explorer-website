@@ -1,10 +1,12 @@
 <template>
   <div class="wrap">
-    <div class="title-wrap">
-      <div class="title">有效算力分布图</div>
-    </div>
-    <div class="chart-box">
-      <Chart :option="option"></Chart>
+    <div class="main-box">
+      <div class="title-wrap">
+        <div class="title">{{$t('home.distributionOfEffectiveComputingPower')}}</div>
+      </div>
+      <div class="chart-box" v-loading="loading">
+        <Chart :option="option"></Chart>
+      </div>
     </div>
   </div>
 </template>
@@ -17,6 +19,7 @@ export default {
   components: { Chart },
   data() {
     return {
+      loading: true,
       option: {
         tooltip: {
           trigger: "item",
@@ -31,7 +34,7 @@ export default {
         },
         series: [
           {
-            name: "有效算力",
+            name: this.$t("home.effectiveComputingPower"),
             type: "pie",
             radius: "50%",
             data: [],
@@ -52,6 +55,13 @@ export default {
   created() {
     this.getData();
   },
+  watch: {
+    "$i18n.locale": {
+      handler: function() {
+        this.option.series[0].name = this.$t("home.effectiveComputingPower");
+      }
+    }
+  },
   methods: {
     getData() {
       getEffectivePledgeApi(2).then(res => {
@@ -64,6 +74,7 @@ export default {
             });
           });
           this.option.series[0].data = arr;
+          this.loading = false;
         }
       });
     }
@@ -72,27 +83,27 @@ export default {
 </script>
 <style lang="scss" scoped>
 .wrap {
-  height: calc(100vh - 80px);
+  height: calc(100vh - 5rem);
   background-color: #f8f8f8;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 0;
+  padding: 1.5rem 0;
   .title-wrap {
     color: #333333;
     font-weight: bold;
-    padding-bottom: 20px;
+    padding-bottom: 1.5rem;
     .title {
-      font-size: 30px;
+      font-size: 2rem;
     }
   }
   .chart-box {
-    padding: 40px;
-    width: 1190px;
-    height: 500px;
+    padding: 1rem;
+    width: 100%;
+    height: 31rem;
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 20px 0 rgba(#000000, 0.1);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1.5rem 0 rgba(#000000, 0.1);
   }
 }
 </style>
