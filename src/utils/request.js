@@ -1,10 +1,13 @@
 import axios from 'axios'
 import store from '@/store/index.js'
 
-console.log('base_url---', process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_API : '/')
-// 创建axios实例
+var base_url = `${window.location.href.split('#')[0]}crust-explorer/api`
+console.log(9999999, base_url)
+console.log('base_url---', process.env.NODE_ENV === 'production' ? base_url : '/')
+
+// 创建axios实例    process.env.VUE_APP_BASE_API
 const service = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_API : '/', // api 的 base_url
+  baseURL: process.env.NODE_ENV === 'production' ? base_url : '/', // api 的 base_url
   timeout: 100000 // 请求超时时间
 })
 

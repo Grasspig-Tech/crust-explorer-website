@@ -153,7 +153,7 @@ export default {
           minWidth: 6
         },
         {
-          title: this.$t("home.transferTimes"),
+          title: this.$t("home.transferAmount"),
           key: "amountTxt",
           color: "#333333",
           headColor: "#333333",
@@ -322,7 +322,7 @@ export default {
         this.tableColumn[3].title = this.$t("home.from");
         this.tableColumn[4].title = this.$t("home.to");
         this.tableColumn[5].title = this.$t("home.results");
-        this.tableColumn[6].title = this.$t("home.transferTimes");
+        this.tableColumn[6].title = this.$t("home.transferAmount");
         this.tableColumn[7].title = this.$t("home.extrinsicHash");
       }
     }

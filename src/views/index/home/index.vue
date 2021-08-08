@@ -69,9 +69,11 @@ export default {
       });
     },
     initWebSocket(sid) {
-      //初始化weosocket
-      //ws地址
-      const wsuri = process.env.VUE_APP_WS_API + `/ws/index?tag=ok&sid=${sid}`;
+      //初始化weosocket  process.env.VUE_APP_WS_API
+      //ws地址  ws://icru.cz
+      const wsuri = `ws://${
+        window.location.href.split("#")[0].split("//")[1]
+      }ws/index?tag=ok&sid=${sid}`;
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onclose = this.websocketclose;

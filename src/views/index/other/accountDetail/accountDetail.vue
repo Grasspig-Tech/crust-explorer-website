@@ -259,7 +259,7 @@ export default {
         this.tableColumn2[3].title = this.$t("home.from");
         this.tableColumn2[4].title = this.$t("home.to");
         this.tableColumn2[5].title = this.$t("home.results");
-        this.tableColumn2[6].title = this.$t("home.transferTimes");
+        this.tableColumn2[6].title = this.$t("home.transferAmount");
         this.tableColumn2[7].title = this.$t("home.extrinsicHash");
 
         this.tableColumn3[0].title = this.$t("home.eventIndex");
@@ -472,7 +472,7 @@ export default {
           minWidth: 6
         },
         {
-          title: this.$t("home.transferTimes"),
+          title: this.$t("home.transferAmount"),
           key: "amountTxt",
           color: "#333333",
           headColor: "#333333",
