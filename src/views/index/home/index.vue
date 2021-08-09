@@ -71,9 +71,12 @@ export default {
     initWebSocket(sid) {
       //初始化weosocket  process.env.VUE_APP_WS_API
       //ws地址  ws://icru.cz
-      const wsuri = `ws://${
-        window.location.href.split("#")[0].split("//")[1]
-      }ws/index?tag=ok&sid=${sid}`;
+      //小赵修改 ws://0.0.0.0
+      
+      // const wsuri = `ws://${
+      //   window.location.href.split("#")[0].split("//")[1]
+      // }ws/index?tag=ok&sid=${sid}`;
+      const wsuri = `ws://0.0.0.0/ws/index?tag=ok&sid=${sid}`;
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onclose = this.websocketclose;
